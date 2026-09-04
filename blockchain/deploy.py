@@ -1,5 +1,5 @@
 """
-Deployment script for FaceVerification Solidity smart contract to Ethereum Sepolia.
+Deployment script for FaceVerification Solidity smart contract to a Local Ethereum Blockchain (Ganache).
 Compiles the contract, signs the deployment transaction, and updates .env with the new contract address.
 """
 import os
@@ -63,56 +63,48 @@ def ensure_compiled():
 
 
 def deploy_contract():
-    print("=" * 60)
-    print("  ETHEREUM SEPOLIA - CONTRACT DEPLOYMENT")
-    print("=" * 60)
+    print("=" * 50)
+    print(" LOCAL BLOCKCHAIN CONTRACT DEPLOYMENT")
+    print("=" * 50)
 
-    rpc_url = os.getenv("RPC_URL", "https://ethereum-sepolia-rpc.publicnode.com")
-    private_key = os.getenv("PRIVATE_KEY")
+    rpc_url = os.getenv("LOCAL_RPC_URL", "http://127.0.0.1:7545")
+    private_key = os.getenv("LOCAL_PRIVATE_KEY") or os.getenv("PRIVATE_KEY")
 
-    if not private_key or "your_private_key" in private_key:
-        print("\n[ERROR] PRIVATE_KEY is not set in your .env file.")
-        print("Please configure PRIVATE_KEY in .env before deploying.")
+    if not private_key or "your_ganache_private_key" in private_key or "your_private_key" in private_key:
+        print("\n[ERROR] LOCAL_PRIVATE_KEY is not set in your .env file.")
+        print("Please copy an account private key from Ganache and set LOCAL_PRIVATE_KEY in .env.")
         sys.exit(1)
 
     pk = private_key.strip()
     if not pk.startswith("0x"):
         pk = "0x" + pk
 
-    account = Account.from_key(pk)
-    print(f"\n[1] Deployer Wallet: {account.address}")
-    print(f"[2] Connecting to RPC: {rpc_url}")
+    try:
+        account = Account.from_key(pk)
+    except Exception as e:
+        print(f"\n[ERROR] Invalid private key format: {e}")
+        sys.exit(1)
+
+    print(f"\nNetwork: Ganache Local")
+    print(f"RPC: {rpc_url}")
+    print(f"Deployer Account: {account.address}")
 
     w3 = Web3(Web3.HTTPProvider(rpc_url))
     if not w3.is_connected():
-        print(f"\n[ERROR] Failed to connect to Ethereum node at {rpc_url}")
+        print(f"\n[ERROR] Failed to connect to local blockchain at {rpc_url}")
+        print("Please ensure Ganache is running (e.g. open Ganache UI or run 'npx ganache --port 7545').")
         sys.exit(1)
-
-    chain_id = w3.eth.chain_id
-    network_name = "Ethereum Sepolia (Testnet)" if chain_id == 11155111 else f"Chain ID {chain_id}"
-    print(f"[3] Network: {network_name}")
 
     balance_wei = w3.eth.get_balance(account.address)
     balance_eth = float(w3.from_wei(balance_wei, "ether"))
-    print(f"[4] Wallet Balance: {balance_eth:.5f} ETH")
+    print(f"Wallet Balance: {balance_eth:.4f} ETH")
 
-    min_deploy_eth = 0.002
-    if balance_eth < min_deploy_eth:
-        print("\n" + "!" * 60)
-        print("[ERROR] INSUFFICIENT SEPOLIA ETH TO DEPLOY CONTRACT")
-        print("!" * 60)
-        print(f"Deployer address: {account.address}")
-        print(f"Current balance:  {balance_eth:.6f} ETH (minimum ~{min_deploy_eth} ETH needed)")
-        print("You need Sepolia testnet ETH to pay for transaction gas.")
-        print("\nGet free Sepolia test ETH from these official faucets:")
-        print("1. Google Cloud Web3 Faucet: https://cloud.google.com/application/web3/faucet/ethereum/sepolia")
-        print("2. Chainlink Sepolia Faucet: https://faucets.chain.link/")
-        print("3. Alchemy Sepolia Faucet:   https://www.alchemy.com/faucets/ethereum-sepolia")
-        print("4. PoW Sepolia Faucet:       https://sepolia-faucet.pk910.de/")
-        print("!" * 60)
+    if balance_eth <= 0:
+        print("\n[ERROR] Deployer account balance is 0 ETH.")
+        print("Please select an account in Ganache that has development ETH.")
         sys.exit(1)
 
-    print("\n[5] Compiling and loading contract artifacts...")
+    print("\nDeploying smart contract...")
     contract_data = ensure_compiled()
     abi = contract_data["abi"]
     bytecode = contract_data["bytecode"]
@@ -121,69 +113,60 @@ def deploy_contract():
 
     nonce = w3.eth.get_transaction_count(account.address, "pending")
     latest_block = w3.eth.get_block("latest")
-    base_fee = latest_block.get("baseFeePerGas", w3.to_wei(2, "gwei"))
-    max_priority_fee = w3.to_wei(2, "gwei")
-    max_fee = base_fee * 2 + max_priority_fee
-
-    print("[6] Building deployment transaction...")
-    construct_txn = contract.constructor().build_transaction({
+    
+    tx_params = {
         "from": account.address,
         "nonce": nonce,
         "gas": 800000,
-        "maxFeePerGas": max_fee,
-        "maxPriorityFeePerGas": max_priority_fee,
-        "chainId": chain_id
-    })
+        "chainId": w3.eth.chain_id
+    }
 
-    print("[7] Signing transaction with private key...")
+    if "baseFeePerGas" in latest_block and latest_block["baseFeePerGas"] is not None:
+        base_fee = latest_block["baseFeePerGas"]
+        max_priority_fee = w3.to_wei(1, "gwei")
+        tx_params["maxFeePerGas"] = base_fee * 2 + max_priority_fee
+        tx_params["maxPriorityFeePerGas"] = max_priority_fee
+    else:
+        tx_params["gasPrice"] = w3.eth.gas_price
+
+    construct_txn = contract.constructor().build_transaction(tx_params)
     signed = w3.eth.account.sign_transaction(construct_txn, private_key=account.key)
 
-    print("[8] Sending transaction to Ethereum Sepolia...")
     try:
         tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
     except Exception as e:
-        if "insufficient funds" in str(e).lower():
-            print("\n" + "!" * 60)
-            print("[ERROR] INSUFFICIENT SEPOLIA ETH TO PAY FOR GAS")
-            print("!" * 60)
-            print(f"Deployer address: {account.address}")
-            print("Get free test ETH at: https://cloud.google.com/application/web3/faucet/ethereum/sepolia")
-            print("!" * 60)
-            sys.exit(1)
-        else:
-            print(f"\n[ERROR] Failed to send transaction: {e}")
-            sys.exit(1)
+        print(f"\n[ERROR] Failed to send transaction: {e}")
+        sys.exit(1)
 
     tx_hex = tx_hash.hex()
-    print(f"    Transaction Hash: {tx_hex}")
-    print("    Waiting for block confirmation on-chain...")
-
-    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=180)
+    receipt = w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
     if receipt.get("status") != 1:
         print("\n[ERROR] Deployment failed or transaction reverted on-chain.")
         sys.exit(1)
 
     contract_address = receipt.contractAddress
-    print("\n" + "=" * 60)
-    print("  CONTRACT DEPLOYED SUCCESSFULLY!")
-    print("=" * 60)
-    print(f"Contract Address: {contract_address}")
-    print(f"Transaction:      {tx_hex}")
-    print(f"Block Number:     {receipt['blockNumber']}")
-    print(f"Gas Used:         {receipt['gasUsed']}")
-    print("=" * 60)
+
+    print("\n✓ Contract deployed")
+    print("Contract address:")
+    print(f"{contract_address}")
+    print("\nTransaction hash:")
+    print(f"{tx_hex}")
+    print("\nBlock number:")
+    print(f"{receipt['blockNumber']}")
+    print("\n✓ Deployment successful")
+    print("=" * 50)
 
     # Automatically update .env
     if os.path.exists(ENV_PATH):
         try:
             set_key(ENV_PATH, "CONTRACT_ADDRESS", contract_address)
-            print(f"\n[INFO] Updated CONTRACT_ADDRESS in {ENV_PATH}")
-        except Exception as e:
-            print(f"\n[INFO] Please add CONTRACT_ADDRESS={contract_address} to your .env file.")
+            print(f"[INFO] Updated CONTRACT_ADDRESS in {ENV_PATH}")
+        except Exception:
+            print(f"[INFO] Please set CONTRACT_ADDRESS={contract_address} in .env")
     else:
         with open(ENV_PATH, "w", encoding="utf-8") as f:
             f.write(f"CONTRACT_ADDRESS={contract_address}\n")
-        print(f"\n[INFO] Created .env with CONTRACT_ADDRESS={contract_address}")
+        print(f"[INFO] Created .env with CONTRACT_ADDRESS={contract_address}")
 
     return contract_address
 
