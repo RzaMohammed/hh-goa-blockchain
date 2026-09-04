@@ -85,6 +85,14 @@ class FaceDetector:
             nparr = np.frombuffer(image_input, np.uint8)
             img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
             if img is None:
+                try:
+                    import io
+                    from PIL import Image
+                    pil_img = Image.open(io.BytesIO(image_input)).convert("RGB")
+                    img = cv2.cvtColor(np.array(pil_img), cv2.COLOR_RGB2BGR)
+                except Exception:
+                    pass
+            if img is None:
                 raise InvalidImageError("Failed to decode image bytes.")
             return img
         elif isinstance(image_input, np.ndarray):

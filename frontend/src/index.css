@@ -1124,3 +1124,187 @@ input[type="range"].ui-input::-moz-range-thumb {
     display: none;
   }
 }
+
+/* ------------------------------------------------------------- */
+/* PIPELINE INPUT MODE SELECTOR & CAMERA / DROPZONE STYLES      */
+/* ------------------------------------------------------------- */
+.input-mode-switcher {
+  display: flex;
+  background: var(--bg-code);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  gap: 4px;
+  margin-bottom: 12px;
+}
+
+.mode-tab-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 7px 12px;
+  font-family: var(--font-sans);
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.mode-tab-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.mode-tab-btn.active {
+  color: var(--accent-yellow-text);
+  background: var(--bg-surface-active);
+  border-color: rgba(250, 204, 21, 0.3);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+/* Live Camera Viewport */
+.camera-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #060c08;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1); /* Mirror effect for natural webcam */
+}
+
+.camera-overlay-reticle {
+  position: absolute;
+  inset: 15%;
+  border: 1.5px solid rgba(250, 204, 21, 0.85);
+  border-radius: 4px;
+  pointer-events: none;
+  box-shadow: 0 0 16px rgba(250, 204, 21, 0.15);
+}
+
+.camera-corner-tick {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-color: #ffffff;
+  border-style: solid;
+}
+
+.camera-corner-tl { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
+.camera-corner-tr { top: -2px; right: -2px; border-width: 3px 3px 0 0; }
+.camera-corner-bl { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; }
+.camera-corner-br { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+
+.camera-scan-beam {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #facc15, transparent);
+  box-shadow: 0 0 8px #facc15;
+  animation: scanSweep 2.4s ease-in-out infinite alternate;
+}
+
+@keyframes scanSweep {
+  0% { top: 0%; opacity: 0.3; }
+  50% { opacity: 1; }
+  100% { top: 100%; opacity: 0.3; }
+}
+
+.camera-controls-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Device Dropzone */
+.device-dropzone {
+  width: 100%;
+  padding: 24px 16px;
+  border: 2px dashed rgba(52, 211, 153, 0.3);
+  background: rgba(18, 34, 26, 0.4);
+  border-radius: var(--radius-md);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+}
+
+.device-dropzone:hover,
+.device-dropzone.dragover {
+  border-color: var(--accent-yellow);
+  background: rgba(250, 204, 21, 0.05);
+}
+
+.dropzone-icon {
+  margin-bottom: 8px;
+  color: var(--accent-yellow);
+}
+
+.dropzone-text-main {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.dropzone-text-sub {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+/* Social Platform Badges */
+.platform-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.platform-pill.github {
+  background: #1f2937;
+  color: #f3f4f6;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.platform-pill.linkedin {
+  background: rgba(10, 102, 194, 0.2);
+  color: #38bdf8;
+  border: 1px solid rgba(56, 189, 248, 0.35);
+}
+
+.platform-pill.instagram {
+  background: rgba(225, 29, 72, 0.18);
+  color: #f472b6;
+  border: 1px solid rgba(244, 114, 182, 0.35);
+}
+
+.platform-pill.web {
+  background: rgba(52, 211, 153, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.3);
+}

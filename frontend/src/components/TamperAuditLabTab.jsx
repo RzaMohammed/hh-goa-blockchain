@@ -1,20 +1,73 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ASSETS } from '../assets/datasets';
 
 export default function TamperAuditLabTab() {
-  const origHash = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
-  const mutatedHash = "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841";
+  const [origHash, setOrigHash] = useState("cdbbb4ca45c00dc16ceb08caeb886d0fb24e059ec11880af497ca620d15359a9");
+  const [mutatedHash, setMutatedHash] = useState("3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841");
+  const [isTampered, setIsTampered] = useState(false);
+  const [tamperStatusMsg, setTamperStatusMsg] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const [isTampered, setIsTampered] = useState(true);
+  useEffect(() => {
+    fetch('/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ record_id: 1, file_type: 'authentic' })
+    })
+      .then(r => r.json())
+      .then(d => {
+        if (d.success && d.local_hash) {
+          setOrigHash(d.local_hash);
+          setMutatedHash(d.local_hash);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
-  const injectTamper = () => {
-    setIsTampered(true);
-    alert('1-Byte Header Tamper Injected. Due to the Avalanche Effect, the entire SHA-256 digest completely mutated!');
+  const injectTamper = async () => {
+    setLoading(true);
+    setTamperStatusMsg(null);
+    try {
+      const res = await fetch('/api/tamper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'tamper' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrigHash(data.original_hash);
+        setMutatedHash(data.tampered_hash);
+        setIsTampered(true);
+        setTamperStatusMsg('Tamper Injected: File bytes modified. Due to the Avalanche Effect, the entire SHA-256 digest completely mutated!');
+      }
+    } catch (e) {
+      setTamperStatusMsg(`Error injecting tamper: ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const resetTamper = () => {
-    setIsTampered(false);
-    alert('Reset to authentic file buffer.');
+  const resetTamper = async () => {
+    setLoading(true);
+    setTamperStatusMsg(null);
+    try {
+      const res = await fetch('/api/tamper', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'restore' })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setOrigHash(data.original_hash);
+        setMutatedHash(data.original_hash);
+        setIsTampered(false);
+        setTamperStatusMsg('File restored to authentic byte buffer. Local checksum matches on-chain registration.');
+      }
+    } catch (e) {
+      setTamperStatusMsg(`Error restoring file: ${e.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -36,6 +89,15 @@ export default function TamperAuditLabTab() {
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', lineHeight: '1.6', marginBottom: '16px' }}>
         Demonstrates how subtle changes break cryptographic integrity: modifying a single metadata byte alters the SHA-256 digest completely, triggering instant tamper detection.
       </p>
+
+      {tamperStatusMsg && (
+        <div
+          className={`status-verdict-box ${isTampered ? 'tampered' : 'verified'}`}
+          style={{ marginBottom: '16px' }}
+        >
+          <p style={{ margin: 0 }}>{tamperStatusMsg}</p>
+        </div>
+      )}
 
       <div className="diff-two-col">
         <div className="diff-panel">

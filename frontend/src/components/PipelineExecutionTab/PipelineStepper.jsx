@@ -115,10 +115,30 @@ export default function PipelineStepper({
                 className={`candidate-entry ${cand.isBest ? 'best' : ''}`}
                 style={{ opacity: cand.opacity || 1 }}
               >
-                <img src={cand.avatar} className="candidate-avatar" alt={cand.label} />
+                <img
+                  src={cand.avatar || '/input/person.jpg'}
+                  className="candidate-avatar"
+                  alt={cand.label}
+                  onError={(e) => { e.currentTarget.src = '/input/person.jpg'; }}
+                />
                 <div className="candidate-info-box">
-                  <div className="candidate-label">{cand.label}</div>
-                  <div className="candidate-link">{cand.link}</div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px', flexWrap: 'wrap' }}>
+                    <span className="candidate-label">{cand.label}</span>
+                    {cand.platform && (
+                      <span className={`platform-pill ${cand.platform}`}>
+                        {cand.platform}
+                      </span>
+                    )}
+                  </div>
+                  <a
+                    href={cand.link}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="candidate-link"
+                    style={{ textDecoration: 'none', color: 'var(--text-secondary)' }}
+                  >
+                    {cand.link} ↗
+                  </a>
                   <div className="metric-bar-group">
                     <div className="metric-track">
                       <div
@@ -182,16 +202,9 @@ export default function PipelineStepper({
             <span className="receipt-val">{receipt.latency}</span>
           </div>
           <div className="receipt-data-row">
-            <span className="receipt-key">Block Explorer:</span>
-            <span className="receipt-val">
-              <a
-                href={receipt.explorerUrl}
-                target="_blank"
-                rel="noreferrer"
-                style={{ color: 'var(--accent-yellow-text)', textDecoration: 'none' }}
-              >
-                {activeNetwork === 'solana' ? 'View On Solana Explorer ↗' : 'View On Sepolia Etherscan ↗'}
-              </a>
+            <span className="receipt-key">Ledger Network:</span>
+            <span className="receipt-val highlight">
+              {receipt.network || 'Local Ganache (Chain ID 1337)'}
             </span>
           </div>
         </div>

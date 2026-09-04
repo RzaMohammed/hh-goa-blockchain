@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function TopNavbar({ activeNetwork, toggleNetwork }) {
+export default function TopNavbar({ statusInfo }) {
   return (
     <header className="top-navbar">
       <div className="nav-brand-group">
@@ -18,11 +18,20 @@ export default function TopNavbar({ activeNetwork, toggleNetwork }) {
       </div>
 
       <div className="nav-controls">
-        <div className="system-status-pill">System Operational</div>
-        <button className="btn-network-select" id="networkToggleBtn" onClick={toggleNetwork}>
-          <span className="network-indicator-dot"></span>
-          <span>{activeNetwork === 'solana' ? 'Solana Devnet (SPL Memo)' : 'Ethereum Sepolia (Solidity)'}</span>
-        </button>
+        <div className="system-status-pill">
+          {statusInfo?.connected ? 'Ganache Online' : 'Connecting Ganache...'}
+        </div>
+        <div className="btn-network-select" style={{ cursor: 'default' }}>
+          <span
+            className="network-indicator-dot"
+            style={{ background: statusInfo?.connected ? 'var(--status-verified)' : 'var(--status-tampered)' }}
+          ></span>
+          <span>
+            {statusInfo?.connected
+              ? `Local Ganache • Block #${statusInfo?.latest_block ?? 2}`
+              : 'Local Ganache (Offline)'}
+          </span>
+        </div>
       </div>
     </header>
   );

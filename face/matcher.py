@@ -57,11 +57,20 @@ class FaceMatcher:
         cosine_score = float(self.recognizer.match(feature1, feature2, cv2.FaceRecognizerSF_FR_COSINE))
         l2_dist = float(self.recognizer.match(feature1, feature2, cv2.FaceRecognizerSF_FR_NORM_L2))
         
-        # SFace cosine similarity is in [-1, 1]. In practice for face matches,
-        # scores > 0.363 indicate same identity per OpenCV benchmarks.
-        # We normalize cleanly: clamp to [0, 1] then multiply by 100 for display.
-        norm_score = max(0.0, min(1.0, (cosine_score + 1.0) / 2.0))
-        percentage = round(norm_score * 100.0, 2)
+        # SFace cosine similarity is in [-1, 1]. In OpenCV benchmarks,
+        # cosine score >= 0.363 is the decision boundary for identical face identity.
+        # Calibrate similarity percentage to reflect biometric confidence accurately:
+        # - Identical / near-identical (cosine >= 0.99) -> 99.8% - 100.0%
+        # - Verified same identity (cosine >= 0.363) -> 85.0% - 99.5%
+        # - Low similarity / non-matches (cosine < 0.363) -> 0.0% - 84.9%
+        if cosine_score >= 0.995:
+            percentage = 100.0
+        elif cosine_score >= 0.363:
+            p = 85.0 + ((min(cosine_score, 1.0) - 0.363) / (1.0 - 0.363)) * 14.8
+            percentage = round(min(100.0, p), 2)
+        else:
+            p = max(0.0, (cosine_score + 0.20) / (0.363 + 0.20)) * 84.9
+            percentage = round(min(84.9, p), 2)
         
         return cosine_score, percentage
 

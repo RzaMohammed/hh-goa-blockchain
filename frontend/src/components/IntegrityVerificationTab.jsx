@@ -2,23 +2,44 @@ import React, { useState } from 'react';
 
 export default function IntegrityVerificationTab() {
   const [selectedFile, setSelectedFile] = useState('authentic');
-  const [recordId, setRecordId] = useState('1001');
+  const [recordId, setRecordId] = useState('1');
   const [auditResult, setAuditResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState(null);
 
-  const runAudit = () => {
-    const onChain = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
-    const isTampered = selectedFile === 'tampered';
-    const local = isTampered
-      ? "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841"
-      : onChain;
-
-    setAuditResult({
-      isTampered,
-      local,
-      onChain,
-      timestamp: "2026-09-04 22:15:30 UTC",
-      recordId
-    });
+  const runAudit = async () => {
+    setLoading(true);
+    setErrorMsg(null);
+    try {
+      const res = await fetch('/api/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          record_id: parseInt(recordId, 10) || 1,
+          file_type: selectedFile
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        setErrorMsg(data.error || 'Verification query failed on Ganache.');
+        setAuditResult(null);
+      } else {
+        setAuditResult({
+          isTampered: !data.is_match,
+          local: data.local_hash,
+          onChain: data.blockchain_hash,
+          timestamp: data.timestamp,
+          recordId: data.record_id,
+          sourceUrl: data.source_url,
+          contractAddress: data.contract_address,
+          submitter: data.submitter
+        });
+      }
+    } catch (err) {
+      setErrorMsg(`Connection error: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -31,11 +52,11 @@ export default function IntegrityVerificationTab() {
           </svg>
           Cryptographic Integrity & Tamper Audit
         </span>
-        <span className="nav-tag">RFC 8785 Proof</span>
+        <span className="nav-tag">Ganache Smart Contract</span>
       </div>
 
       <p style={{ color: 'var(--text-secondary)', fontSize: '0.85rem', marginBottom: '20px' }}>
-        Re-hashes local media bytes in real-time and queries the immutable on-chain record to mathematically prove authenticity.
+        Re-hashes local media bytes in real-time and queries the immutable on-chain record on Local Ganache to mathematically prove authenticity.
       </p>
 
       <div className="form-group-row">
@@ -46,8 +67,8 @@ export default function IntegrityVerificationTab() {
             value={selectedFile}
             onChange={(e) => setSelectedFile(e.target.value)}
           >
-            <option value="authentic">Authentic Original (input/person.jpg)</option>
-            <option value="tampered">Tampered Simulation (1-Byte Altered)</option>
+            <option value="authentic">Authentic Content (output/matched_image.jpg)</option>
+            <option value="tampered">Tampered Simulation (Modified Bytes)</option>
           </select>
         </div>
         <div className="form-control-block">
@@ -56,18 +77,26 @@ export default function IntegrityVerificationTab() {
             type="number"
             className="ui-input"
             value={recordId}
+            min="1"
             onChange={(e) => setRecordId(e.target.value)}
           />
         </div>
       </div>
 
-      <button className="btn-action-primary" onClick={runAudit}>
+      <button className="btn-action-primary" onClick={runAudit} disabled={loading}>
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
         </svg>
-        <span>Re-Hash & Audit Against Blockchain</span>
+        <span>{loading ? 'Auditing Against Blockchain...' : 'Re-Hash & Audit Against Blockchain'}</span>
       </button>
+
+      {errorMsg && (
+        <div className="status-verdict-box tampered" style={{ marginTop: '16px' }}>
+          <h4>Audit Query Failed</h4>
+          <p>{errorMsg}</p>
+        </div>
+      )}
 
       {auditResult && (
         <>

@@ -35,8 +35,40 @@ class ImageDownloader:
     def download_image_bytes(self, url: str) -> bytes:
         """
         Downloads image bytes from a URL with safety checks.
+        Supports HTTP(S) URLs, data URIs, and local file paths.
         """
-        if not url or not (url.startswith("http://") or url.startswith("https://")):
+        if not url:
+            raise DownloadError("Empty URL provided.")
+
+        # Local file path support
+        if os.path.isfile(url):
+            try:
+                with open(url, "rb") as f:
+                    return f.read()
+            except Exception as e:
+                raise DownloadError(f"Failed to read local file {url}: {e}")
+
+        # Relative paths (e.g., /output/... or /input/...)
+        if url.startswith("/") or url.startswith("input/") or url.startswith("output/"):
+            base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            local_path = os.path.join(base_dir, url.lstrip("/"))
+            if os.path.isfile(local_path):
+                try:
+                    with open(local_path, "rb") as f:
+                        return f.read()
+                except Exception as e:
+                    raise DownloadError(f"Failed to read local path {local_path}: {e}")
+
+        # Data URI support
+        if url.startswith("data:image/"):
+            try:
+                import base64
+                header, b64data = url.split(",", 1)
+                return base64.b64decode(b64data)
+            except Exception as e:
+                raise DownloadError(f"Failed to decode data URI: {e}")
+
+        if not (url.startswith("http://") or url.startswith("https://")):
             raise DownloadError(f"Invalid URL schema: {url}")
 
         try:

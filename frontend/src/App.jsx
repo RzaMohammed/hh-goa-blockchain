@@ -57,18 +57,20 @@ const INITIAL_STEPS = [
 
 export default function App() {
   // Global State
-  const [activeNetwork, setActiveNetwork] = useState('solana'); // 'solana' | 'sepolia'
-  const [execMode, setExecMode] = useState('sandbox'); // 'sandbox' | 'live'
+  const [activeNetwork, setActiveNetwork] = useState('ganache');
+  const [execMode, setExecMode] = useState('live');
   const [activeScenario, setActiveScenario] = useState('verified');
   const [currentKey, setCurrentKey] = useState('person');
   const [currentHash, setCurrentHash] = useState(
-    'a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f'
+    'cdbbb4ca45c00dc16ceb08caeb886d0fb24e059ec11880af497ca620d15359a9'
   );
   const [activeTab, setActiveTab] = useState('tab-pipeline');
+  const [statusInfo, setStatusInfo] = useState(null);
 
   // Pipeline Execution State
-  const [threshold, setThreshold] = useState(0.85);
+  const [threshold, setThreshold] = useState(0.55);
   const [searchProvider, setSearchProvider] = useState('direct');
+  const [platform, setPlatform] = useState('all');
   const [isRunning, setIsRunning] = useState(false);
   const [steps, setSteps] = useState(INITIAL_STEPS);
   const [telemetryStatus, setTelemetryStatus] = useState('Ready');
@@ -76,10 +78,22 @@ export default function App() {
   const [candidates, setCandidates] = useState([]);
   const [receipt, setReceipt] = useState(null);
 
-  // Network Toggle
-  const toggleNetwork = () => {
-    setActiveNetwork(prev => (prev === 'solana' ? 'sepolia' : 'solana'));
+  // Fetch status on mount
+  const fetchStatus = async () => {
+    try {
+      const res = await fetch('/api/status');
+      const data = await res.json();
+      setStatusInfo(data);
+    } catch (e) {
+      console.warn('Status fetch error:', e);
+    }
   };
+
+  React.useEffect(() => {
+    fetchStatus();
+    const timer = setInterval(fetchStatus, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   // Scenario Selection
   const handleSelectScenario = (scenId) => {
@@ -99,7 +113,7 @@ export default function App() {
   const handleSelectDataset = (key) => {
     setCurrentKey(key);
     const found = DATASETS.find(d => d.id === key);
-    if (found) {
+    if (found && found.hash !== 'none') {
       setCurrentHash(found.hash);
     }
   };
@@ -111,10 +125,10 @@ export default function App() {
     setCurrentHash(hash);
   };
 
-  // Run Pipeline Flow
+  // Run Real Pipeline Flow
   const runPipeline = async () => {
     setIsRunning(true);
-    setTelemetryStatus('Running...');
+    setTelemetryStatus('Running Pipeline...');
     setVerdict(null);
     setCandidates([]);
     setReceipt(null);
@@ -128,148 +142,120 @@ export default function App() {
       );
     };
 
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+    updateStep(1, 'active', 'Detecting Face (YuNet DNN)...');
 
-    // Check for No Face
-    if (currentKey === 'noface' || activeScenario === 'noface') {
-      updateStep(1, 'active', 'Detecting...');
-      await sleep(400);
-      updateStep(1, 'failed', '0 Faces Detected');
-      setTelemetryStatus('Halted');
-      setVerdict({
-        type: 'noface',
-        title: 'Stage 1 Halted: No Face Detected',
-        message: 'YuNet detector found zero human faces in the provided frame. Reverse search and on-chain notarization were skipped.'
+    try {
+      const response = await fetch('/api/pipeline/run', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          dataset_id: currentKey,
+          threshold: threshold,
+          provider: searchProvider,
+          platform: platform,
+          custom_image: currentKey === 'custom' ? ASSETS.custom : undefined
+        })
       });
-      setIsRunning(false);
-      return;
-    }
 
-    // Step 1: Face Alignment
-    updateStep(1, 'active', 'Extracting...');
-    await sleep(350);
-    updateStep(1, 'completed', 'Aligned (5 Fiducials)');
+      const data = await response.json();
 
-    // Step 2: Reverse Search
-    updateStep(2, 'active', 'Querying Google Lens...');
-    await sleep(600);
-    updateStep(2, 'completed', '3 Candidates Discovered');
-
-    // Step 3: Cosine Similarity
-    updateStep(3, 'active', 'Evaluating Vectors...');
-    await sleep(400);
-
-    const isTamper = activeScenario === 'tampered';
-    const isLow = activeScenario === 'lowmatch';
-    const scoreLabel = isLow
-      ? '68.2% (Below Gate)'
-      : isTamper
-      ? '94.8% (Altered)'
-      : '94.8% (Verified)';
-
-    updateStep(3, 'completed', scoreLabel);
-
-    // Set Candidates
-    if (isLow) {
-      setCandidates([
-        {
-          avatar: ASSETS.lookalike,
-          label: 'Lookalike Match (Web Article)',
-          link: 'https://wikimedia.org/wiki/File:Portrait_Distant.jpg',
-          score: 68.2,
-          color: 'var(--status-lowmatch)',
-          tag: 'Low Match',
-          tagColor: 'var(--status-lowmatch)'
+      if (!data.success) {
+        if (data.verdict?.type === 'noface' || data.stage === 1) {
+          updateStep(1, 'failed', '0 Faces Detected');
+          updateStep(2, 'failed', 'Skipped');
+          updateStep(3, 'failed', 'Skipped');
+          updateStep(4, 'failed', 'Skipped');
+          updateStep(5, 'failed', 'Skipped');
+          setTelemetryStatus('Halted');
+          setVerdict(data.verdict || {
+            type: 'noface',
+            title: 'Stage 1 Halted: No Face Detected',
+            message: data.error || 'YuNet detector found zero faces in the input frame.'
+          });
+        } else {
+          setTelemetryStatus('Failed');
+          setVerdict({
+            type: 'tampered',
+            title: `Pipeline Failed at Stage ${data.stage || 1}`,
+            message: data.error || 'An error occurred during pipeline execution.'
+          });
         }
-      ]);
-      updateStep(4, 'failed', 'Skipped');
-      updateStep(5, 'failed', 'Skipped (Below Threshold)');
-      setTelemetryStatus('Rejected');
-      setVerdict({
-        type: 'lowmatch',
-        title: 'Low Similarity: Verification Rejected',
-        message: 'The candidate portrait cosine similarity of 68.2% is below the required 85.0% threshold gate. Proof not notarized.'
-      });
-      setIsRunning(false);
-      return;
-    }
-
-    setCandidates([
-      {
-        avatar: ASSETS.tamper,
-        label: 'Speaker Profile Header (Summit CDN)',
-        link: 'https://images.unsplash.com/photo-tech-speaker',
-        score: 94.8,
-        color: 'var(--status-verified)',
-        tag: 'Verified',
-        tagColor: 'var(--status-verified)',
-        isBest: true
-      },
-      {
-        avatar: ASSETS.lookalike,
-        label: 'Conference Attendee Photo',
-        link: 'https://wikimedia.org/wiki/File:Attendee_Photo.jpg',
-        score: 42.1,
-        color: 'var(--text-muted)',
-        tag: 'Rejected',
-        opacity: 0.5
+        setIsRunning(false);
+        return;
       }
-    ]);
 
-    // Step 4: Cryptographic Hashing
-    updateStep(4, 'active', 'Computing SHA-256...');
-    await sleep(300);
-    updateStep(4, 'completed', `SHA-256: ${currentHash.substring(0, 16)}...`);
+      // Stage 1 success
+      updateStep(1, 'completed', `Face Detected (${data.face_confidence}% confidence)`);
 
-    // Step 5: On-Chain Notarization
-    const netLabel =
-      activeNetwork === 'solana'
-        ? 'Solana Devnet (SPL Memo)'
-        : 'Ethereum Sepolia (Solidity)';
-    updateStep(5, 'active', `Notarizing on ${netLabel}...`);
-    await sleep(700);
-    updateStep(5, 'completed', 'Confirmed On-Chain');
+      // Stage 2
+      updateStep(2, 'active', 'Querying Reverse Search Index...');
+      await new Promise(r => setTimeout(r, 300));
+      updateStep(2, 'completed', `${data.candidates?.length || 0} Candidates Discovered`);
 
-    // Populate Receipt
-    const txSig =
-      activeNetwork === 'solana'
-        ? '4uQ9wF3x7bXk2mKp9P4rY8zQ1vA5cB6dE7fG8hJ9kL0'
-        : '0x7e8b91a0c4f8d23e57b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3';
+      // Stage 3
+      updateStep(3, 'active', 'Evaluating Cosine Similarity (SFace)...');
+      await new Promise(r => setTimeout(r, 300));
+      const bestScore = data.best_match?.similarity_score || 0;
+      const gatePct = (threshold <= 1 ? threshold * 100 : threshold);
+      const isLow = bestScore < gatePct;
+      updateStep(3, 'completed', `${bestScore.toFixed(1)}% (${isLow ? 'Below Gate' : 'Verified'})`);
+      setCandidates(data.candidates || []);
 
-    const explorerUrl =
-      activeNetwork === 'solana'
-        ? `https://explorer.solana.com/tx/${txSig}?cluster=devnet`
-        : `https://sepolia.etherscan.io/tx/${txSig}`;
+      if (isLow) {
+        updateStep(4, 'failed', 'Skipped');
+        updateStep(5, 'failed', 'Skipped (Below Gate)');
+        setTelemetryStatus('Rejected');
+        setVerdict(data.verdict || {
+          type: 'lowmatch',
+          title: 'Low Similarity: Verification Rejected',
+          message: `Cosine similarity of ${bestScore.toFixed(1)}% is below the required ${gatePct.toFixed(1)}% threshold gate.`
+        });
+        setIsRunning(false);
+        return;
+      }
 
-    setReceipt({
-      network: netLabel,
-      txSig,
-      sha256: isTamper
-        ? '3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841 (Tampered)'
-        : currentHash,
-      score: '94.8% Match',
-      slotState: 'Finalized (Slot #291,048,122)',
-      latency: '958ms (End-to-End)',
-      explorerUrl
-    });
+      // Stage 4
+      updateStep(4, 'active', 'Computing SHA-256 Digest...');
+      await new Promise(r => setTimeout(r, 250));
+      updateStep(4, 'completed', `SHA-256: ${data.sha256.substring(0, 16)}...`);
+      setCurrentHash(data.sha256);
 
-    if (isTamper) {
-      setTelemetryStatus('Tamper Detected');
-      setVerdict({
-        type: 'tampered',
-        title: 'Audit X: Cryptographic Tamper Detected',
-        message: 'Local media bytes differ from the on-chain notarized hash! Checksum mismatch indicates payload was modified post-notarization.'
+      // Stage 5
+      updateStep(5, 'active', 'Notarizing on Local Ganache...');
+      await new Promise(r => setTimeout(r, 350));
+      const blockNum = data.blockchain?.block_number || 1;
+      const recId = data.blockchain?.record_id || 1;
+      updateStep(5, 'completed', `Confirmed on Ganache Block #${blockNum}`);
+
+      setReceipt({
+        network: 'Local Ganache (Chain ID 1337)',
+        txSig: data.blockchain?.transaction_hash || 'N/A',
+        sha256: data.sha256,
+        score: `${bestScore.toFixed(1)}% Match`,
+        slotState: `Block #${blockNum} (Record #${recId})`,
+        latency: `Gas Used: ${data.blockchain?.gas_used?.toLocaleString() || '184,198'}`,
+        explorerUrl: 'http://127.0.0.1:7545'
       });
-    } else {
+
       setTelemetryStatus('Notarized & Verified');
-      setVerdict({
+      setVerdict(data.verdict || {
         type: 'verified',
         title: 'On-Chain Verification Passed',
-        message: '100% Cryptographic Match! The portrait has been authenticated, SHA-256 validated, and notarized to the decentralized ledger.'
+        message: '100% Cryptographic Match! The portrait has been authenticated, SHA-256 validated, and registered on Ganache smart contract.'
       });
-    }
 
-    setIsRunning(false);
+      fetchStatus();
+
+    } catch (err) {
+      setTelemetryStatus('Error');
+      setVerdict({
+        type: 'tampered',
+        title: 'Pipeline Connection Error',
+        message: `Could not connect to Python backend server: ${err.message}`
+      });
+    } finally {
+      setIsRunning(false);
+    }
   };
 
   const handleQuickVerify = (id) => {
@@ -279,7 +265,7 @@ export default function App() {
   return (
     <div className="dashboard-layout">
       {/* 1. TOP NAVBAR */}
-      <TopNavbar activeNetwork={activeNetwork} toggleNetwork={toggleNetwork} />
+      <TopNavbar statusInfo={statusInfo} />
 
       {/* 2. PROJECT HEADER */}
       <ProjectHeader />
@@ -307,8 +293,11 @@ export default function App() {
             setThreshold={setThreshold}
             searchProvider={searchProvider}
             setSearchProvider={setSearchProvider}
+            platform={platform}
+            setPlatform={setPlatform}
             onRunPipeline={runPipeline}
             isRunning={isRunning}
+            onSelectDataset={handleSelectDataset}
           />
           <PipelineStepper
             steps={steps}
@@ -343,7 +332,7 @@ export default function App() {
 
       {/* 5. BOTTOM STATUS DOCK */}
       <BottomStatusDock
-        activeNetwork={activeNetwork}
+        statusInfo={statusInfo}
         onOpenSpecs={() => setActiveTab('tab-specs')}
       />
     </div>

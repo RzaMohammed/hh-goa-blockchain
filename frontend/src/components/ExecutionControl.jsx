@@ -21,19 +21,16 @@ export default function ExecutionControl({
 
         <div className="segmented-control">
           <button
+            className={`segment-btn ${execMode === 'live' ? 'active' : ''}`}
+            onClick={() => setExecMode('live')}
+          >
+            <span>Live Pipeline (Ganache)</span>
+          </button>
+          <button
             className={`segment-btn ${execMode === 'sandbox' ? 'active' : ''}`}
             onClick={() => setExecMode('sandbox')}
           >
-            <span>Sandbox Mode</span>
-          </button>
-          <button
-            className={`segment-btn ${execMode === 'live' ? 'active' : ''}`}
-            onClick={() => {
-              setExecMode('live');
-              alert('Live Python API Selected: Backend server active on http://localhost:8080');
-            }}
-          >
-            <span>Live Python API</span>
+            <span>Offline Sandbox</span>
           </button>
         </div>
       </div>

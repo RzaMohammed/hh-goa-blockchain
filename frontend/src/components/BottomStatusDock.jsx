@@ -1,21 +1,31 @@
 import React from 'react';
 
-export default function BottomStatusDock({ activeNetwork, onOpenSpecs }) {
+export default function BottomStatusDock({ statusInfo, onOpenSpecs }) {
+  const shortAddr = statusInfo?.contract_address
+    ? `${statusInfo.contract_address.slice(0, 6)}...${statusInfo.contract_address.slice(-4)}`
+    : '0x38B0...4a02';
+
   return (
     <footer className="bottom-status-dock">
       <div className="dock-left">
         <div className="dock-item">
-          <span className="dock-dot"></span>
-          <span>{activeNetwork === 'solana' ? 'Solana Devnet' : 'Ethereum Sepolia'}</span>
+          <span
+            className="dock-dot"
+            style={{ background: statusInfo?.connected ? 'var(--status-verified)' : 'var(--status-tampered)' }}
+          ></span>
+          <span>Local Ganache (Chain ID 1337)</span>
         </div>
         <div className="dock-item">
-          <span>Latency: <strong style={{ color: 'var(--text-primary)' }}>38ms</strong></span>
+          <span>Block: <strong style={{ color: 'var(--text-primary)' }}>#{statusInfo?.latest_block ?? 2}</strong></span>
         </div>
         <div className="dock-item">
-          <span>Slot: <strong style={{ color: 'var(--text-primary)' }}>#291,048,122</strong></span>
+          <span>Contract: <strong style={{ color: 'var(--text-primary)' }}>{shortAddr}</strong></span>
         </div>
         <div className="dock-item">
-          <span>RFC 8785 Canonical v1</span>
+          <span>Records: <strong style={{ color: 'var(--text-primary)' }}>{statusInfo?.total_records ?? 1}</strong></span>
+        </div>
+        <div className="dock-item">
+          <span>Balance: <strong style={{ color: 'var(--text-primary)' }}>{statusInfo?.wallet_balance ?? 99.9} ETH</strong></span>
         </div>
       </div>
 

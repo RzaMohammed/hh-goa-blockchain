@@ -80,9 +80,10 @@ def parse_args():
         help="Skip on-chain blockchain registration (useful for dry runs and offline testing)"
     )
     parser.add_argument(
-        "--local-evm",
-        action="store_true",
-        help="Use in-memory EVM testnet instead of Ethereum Sepolia (ideal for offline demonstration & tests)"
+        "--platform",
+        choices=["all", "instagram", "github", "linkedin"],
+        default="all",
+        help="Target social platform to search (choices: all, instagram, github, linkedin; default: all)"
     )
     return parser.parse_args()
 
@@ -143,9 +144,10 @@ def run_pipeline():
         provider = get_search_provider(args.provider)
         provider_name = provider.__class__.__name__.replace("SearchProvider", "")
         print(f"  Provider: {provider_name}")
+        print(f"  Social Platform Target: {args.platform.upper()}")
         print("  ✓ Reverse image search started")
-        candidates = provider.search(image_path, max_results=args.max_candidates)
-        print(f"  ✓ {len(candidates)} candidate results found dynamically from the web")
+        candidates = provider.search(image_path, max_results=args.max_candidates, platform=args.platform)
+        print(f"  ✓ {len(candidates)} candidate results found dynamically across {args.platform.upper()}")
     except SearchError as e:
         print(f"\n[ERROR] Search operation failed: {e}")
         sys.exit(1)

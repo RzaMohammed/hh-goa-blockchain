@@ -31,7 +31,7 @@ export default function ProjectHeader() {
         </div>
         <div className="spec-chip">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/></svg>
-          <span>Solana Memo v2 / Sepolia Solidity</span>
+          <span>Local Ganache EVM (Chain 1337)</span>
         </div>
       </div>
     </section>
