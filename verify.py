@@ -114,7 +114,9 @@ def verify():
         sys.exit(1)
 
     # 3. Connect to blockchain and query smart contract
-    network_label = "In-Memory Local EVM" if is_local_evm else "Ethereum Sepolia"
+    network_label = "In-Memory Local EVM" if is_local_evm else "Local Ganache"
+    print(f"\nNetwork: {network_label}")
+    print(f"Record ID: {record_id}")
     print(f"Connecting to {network_label} smart contract...")
     try:
         client = BlockchainClient(
@@ -129,43 +131,40 @@ def verify():
     except BlockchainError as e:
         print(f"\n[ERROR] Blockchain error: {e}")
         if not is_local_evm and "CONTRACT_ADDRESS" in str(e):
-            print("\nHint: To deploy the smart contract on Ethereum Sepolia, run:")
+            print("\nHint: To deploy the smart contract on your local Ganache blockchain, run:")
             print("  python blockchain/deploy.py")
-            print("Or if you ran app.py with --local-evm, verify with:")
-            print(f"  python verify.py --image {args.image} --record {record_id} --local-evm")
         sys.exit(1)
     except Exception as e:
         print(f"\n[ERROR] Unexpected error connecting to blockchain: {e}")
         sys.exit(1)
 
     blockchain_hash = record["data_hash"]
-    ts_dt = datetime.utcfromtimestamp(record["timestamp"]).strftime('%Y-%m-%d %H:%M:%S UTC')
+    ts_dt = datetime.utcfromtimestamp(record["timestamp"]).strftime('%Y-%m-%d %H:%M:%S UTC') if record["timestamp"] else "N/A"
 
-    print(f"Connected to Contract: {client.contract_address}")
-    print(f"On-chain Record Timestamp: {ts_dt}")
-    print(f"Discovered Source URL:      {record['source_url']}")
-    print(f"Registered By Wallet:       {record['submitter']}")
+    print(f"Contract Address:  {client.contract_address}")
+    print(f"Record Timestamp:  {ts_dt}")
+    print(f"Source URL:        {record['source_url']}")
+    print(f"Submitter Account: {record['submitter']}")
 
     # 4. Compare hashes
-    print("\n" + "-" * 60)
+    print("\n" + "-" * 50)
     print(f"Blockchain hash:\n{blockchain_hash}\n")
     print(f"Current file hash:\n{current_file_hash}")
-    print("-" * 60)
+    print("-" * 50)
 
     is_match = verify_hashes(blockchain_hash, current_file_hash)
 
     if is_match:
         print("\n✓ HASH MATCH")
-        print("\n✓ VERIFICATION PASSED")
-        print("The current file matches the fingerprint")
-        print("recorded on the Ethereum Sepolia blockchain.")
+        print("✓ VERIFICATION PASSED")
+        print("The current file matches the fingerprint recorded on the local Ganache blockchain.")
         print("File integrity is verified and tamper-free.")
         sys.exit(0)
     else:
         print("\n✗ HASH MISMATCH")
-        print("\n✗ VERIFICATION FAILED")
-        print("The current file differs from the recorded version.")
-        print("The content has been modified, tampered with, or corrupted since registration.")
+        print("✗ VERIFICATION FAILED")
+        print("✗ FILE HAS BEEN MODIFIED")
+        print("The current file differs from the recorded version on the local Ganache blockchain.")
         sys.exit(2)
 
 

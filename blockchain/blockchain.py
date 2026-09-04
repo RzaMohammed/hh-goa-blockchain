@@ -1,5 +1,6 @@
 """
-Web3.py Ethereum Sepolia client for interacting with the FaceVerification smart contract.
+Web3.py client for interacting with the FaceVerification smart contract
+on a Local Ethereum-compatible blockchain (Ganache).
 Handles signing transactions, recording SHA-256 fingerprints, and querying on-chain records.
 """
 import os
@@ -15,7 +16,6 @@ from utils.hashing import hex_to_bytes32, bytes32_to_hex
 load_dotenv()
 logger = logging.getLogger(__name__)
 
-SEPOLIA_CHAIN_ID = 11155111
 CONTRACT_DATA_PATH = os.path.join(os.path.dirname(__file__), "contract_data.json")
 
 
@@ -36,7 +36,7 @@ class RecordNotFoundError(BlockchainError):
 
 class BlockchainClient:
     """
-    Manages Web3 connection to Ethereum Sepolia and contract interactions.
+    Manages Web3 connection to a local Ethereum blockchain (Ganache) and contract interactions.
     """
     def __init__(
         self,
@@ -46,8 +46,8 @@ class BlockchainClient:
         use_local_evm: bool = False
     ):
         self.use_local_evm = use_local_evm
-        self.rpc_url = rpc_url or os.getenv("RPC_URL", "https://ethereum-sepolia-rpc.publicnode.com")
-        self.private_key = private_key or os.getenv("PRIVATE_KEY")
+        self.rpc_url = rpc_url or os.getenv("LOCAL_RPC_URL", "http://127.0.0.1:7545")
+        self.private_key = private_key or os.getenv("LOCAL_PRIVATE_KEY") or os.getenv("PRIVATE_KEY")
         self.contract_address = contract_address or os.getenv("CONTRACT_ADDRESS")
 
         # Load contract ABI
@@ -59,18 +59,17 @@ class BlockchainClient:
             self.abi = data["abi"]
             self.bytecode = data.get("bytecode", "")
 
+        # In-memory local EVM fallback for isolated unit tests
         if self.use_local_evm:
             from web3 import EthereumTesterProvider
             self.w3 = Web3(EthereumTesterProvider())
             self.account = Account.from_key(self.w3.eth.account.create().key)
-            # Fund account in tester
             tester_account = self.w3.eth.accounts[0]
             self.w3.eth.send_transaction({
                 "from": tester_account,
                 "to": self.account.address,
                 "value": self.w3.to_wei(10, "ether")
             })
-            # Deploy contract on local EVM
             factory = self.w3.eth.contract(abi=self.abi, bytecode=self.bytecode)
             tx = factory.constructor().transact({"from": tester_account})
             rec = self.w3.eth.wait_for_transaction_receipt(tx)
@@ -79,12 +78,12 @@ class BlockchainClient:
             logger.info(f"Local EVM initialized. Contract deployed at {self.contract_address}")
             return
 
-        # Connect to Web3 provider (Ethereum Sepolia)
+        # Connect to Local Ganache RPC
         self.w3 = Web3(Web3.HTTPProvider(self.rpc_url))
         if not self.w3.is_connected():
             raise BlockchainError(
-                f"Failed to connect to Ethereum node at {self.rpc_url}. "
-                "Please verify your internet connection or check RPC_URL in .env."
+                f"Failed to connect to local Ethereum blockchain at {self.rpc_url}. "
+                "Please verify that Ganache is running (e.g. Ganache UI or 'npx ganache --port 7545')."
             )
 
         # Set up account if private key is provided
@@ -108,15 +107,12 @@ class BlockchainClient:
                 raise BlockchainError(f"Invalid contract address '{self.contract_address}': {e}")
 
     def get_network_info(self) -> Dict[str, Any]:
-        """Returns details about the connected Ethereum network."""
+        """Returns details about the connected local Ethereum network."""
         chain_id = self.w3.eth.chain_id
-        is_sepolia = (chain_id == SEPOLIA_CHAIN_ID)
-        network_name = "Ethereum Sepolia" if is_sepolia else f"Unknown Network (Chain ID: {chain_id})"
         latest_block = self.w3.eth.block_number
         return {
             "chain_id": chain_id,
-            "network_name": network_name,
-            "is_sepolia": is_sepolia,
+            "network_name": "Local Ganache",
             "latest_block": latest_block,
             "rpc_url": self.rpc_url
         }
@@ -124,27 +120,25 @@ class BlockchainClient:
     def get_wallet_balance(self) -> float:
         """Returns wallet balance in ETH."""
         if not self.account:
-            raise BlockchainError("No wallet configured (PRIVATE_KEY missing).")
+            raise BlockchainError("No wallet configured (LOCAL_PRIVATE_KEY missing).")
         balance_wei = self.w3.eth.get_balance(self.account.address)
         return float(self.w3.from_wei(balance_wei, "ether"))
 
     def register_hash(self, data_hash_hex: str, source_url: str) -> Dict[str, Any]:
         """
         Submits a transaction to the smart contract to store the SHA-256 fingerprint.
-        Waits for confirmation on the blockchain and returns receipt data.
+        Waits for confirmation on the local blockchain and returns receipt data.
         """
         if not self.contract:
             raise BlockchainError("Smart contract address is not configured. Set CONTRACT_ADDRESS in .env.")
         if not self.account:
-            raise BlockchainError("Wallet private key is not configured. Set PRIVATE_KEY in .env.")
+            raise BlockchainError("Local wallet private key is not configured. Set LOCAL_PRIVATE_KEY in .env.")
 
         balance_eth = self.get_wallet_balance()
         if balance_eth <= 0:
             raise InsufficientFundsError(
                 f"Wallet {self.account.address} has {balance_eth} ETH. "
-                "You need Sepolia testnet ETH to pay for transaction gas. "
-                "Get free test ETH at: https://cloud.google.com/application/web3/faucet/ethereum/sepolia "
-                "or https://faucets.chain.link/"
+                "Please use a funded Ganache development account."
             )
 
         bytes32_hash = hex_to_bytes32(data_hash_hex)
@@ -153,10 +147,7 @@ class BlockchainClient:
         # Build transaction
         nonce = self.w3.eth.get_transaction_count(account_address, "pending")
         latest_block = self.w3.eth.get_block("latest")
-        base_fee = latest_block.get("baseFeePerGas", self.w3.to_wei(2, "gwei"))
-        max_priority_fee = self.w3.to_wei(2, "gwei")
-        max_fee = base_fee * 2 + max_priority_fee
-
+        
         tx_function = self.contract.functions.registerRecord(bytes32_hash, source_url)
 
         try:
@@ -165,17 +156,26 @@ class BlockchainClient:
         except Exception:
             gas_limit = 150000
 
-        tx_dict = tx_function.build_transaction({
+        # Ganache supports standard gasPrice or EIP-1559 baseFee
+        tx_dict = {
             "from": account_address,
             "nonce": nonce,
             "gas": gas_limit,
-            "maxFeePerGas": max_fee,
-            "maxPriorityFeePerGas": max_priority_fee,
             "chainId": self.w3.eth.chain_id
-        })
+        }
+
+        if "baseFeePerGas" in latest_block and latest_block["baseFeePerGas"] is not None:
+            base_fee = latest_block["baseFeePerGas"]
+            max_priority_fee = self.w3.to_wei(1, "gwei")
+            tx_dict["maxFeePerGas"] = base_fee * 2 + max_priority_fee
+            tx_dict["maxPriorityFeePerGas"] = max_priority_fee
+        else:
+            tx_dict["gasPrice"] = self.w3.eth.gas_price
+
+        tx_built = tx_function.build_transaction(tx_dict)
 
         # Sign transaction
-        signed_tx = self.w3.eth.account.sign_transaction(tx_dict, private_key=self.account.key)
+        signed_tx = self.w3.eth.account.sign_transaction(tx_built, private_key=self.account.key)
 
         # Submit transaction
         tx_hash = self.w3.eth.send_raw_transaction(signed_tx.raw_transaction)
@@ -183,7 +183,7 @@ class BlockchainClient:
         logger.info(f"Transaction submitted: {tx_hash_hex}. Waiting for confirmation...")
 
         # Wait for receipt
-        receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=180)
+        receipt = self.w3.eth.wait_for_transaction_receipt(tx_hash, timeout=60)
         if receipt.get("status") != 1:
             raise BlockchainError(f"Transaction {tx_hash_hex} failed or reverted on-chain.")
 
@@ -204,11 +204,11 @@ class BlockchainClient:
             "submitter": account_address,
             "data_hash": data_hash_hex,
             "source_url": source_url,
-            "network": "In-Memory Local EVM" if self.use_local_evm else "Ethereum Sepolia",
-            "timestamp": latest_block.get("timestamp", int(receipt.get("blockNumber", 1)))
+            "network": "Local Ganache",
+            "timestamp": latest_block.get("timestamp", 0)
         }
 
-        # If running in local EVM mode, persist record to disk for subsequent local verification
+        # If running in test EVM mode, persist record to disk for subsequent local verification
         if self.use_local_evm:
             records_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "output", "local_blockchain_records.json")
             os.makedirs(os.path.dirname(records_file), exist_ok=True)

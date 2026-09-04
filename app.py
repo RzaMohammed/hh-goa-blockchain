@@ -240,7 +240,7 @@ def run_pipeline():
     # Compute SHA-256 cryptographic fingerprint from raw file bytes
     file_sha256 = hash_file(matched_image_path)
     print("  ✓ SHA-256 generated")
-    print(f"\n  Hash:\n  {file_sha256}")
+    print(f"\n  Image SHA-256 (File Fingerprint):\n  {file_sha256}")
 
     # -------------------------------------------------------------
     # [6] BLOCKCHAIN SMART CONTRACT REGISTRATION
@@ -248,7 +248,7 @@ def run_pipeline():
     print("\n[6] BLOCKCHAIN")
     blockchain_info = {
         "status": "Skipped" if args.skip_blockchain else "Pending",
-        "network": "In-Memory Local EVM" if args.local_evm else "Ethereum Sepolia",
+        "network": "Local Ganache",
         "contract_address": os.getenv("CONTRACT_ADDRESS", "Not Configured"),
         "transaction_hash": None,
         "record_id": None
@@ -259,10 +259,11 @@ def run_pipeline():
     else:
         try:
             client = BlockchainClient(use_local_evm=args.local_evm)
-            net_info = client.get_network_info() if not args.local_evm else {"network_name": "In-Memory Local EVM (Ethereum compatible)"}
-            print(f"  Network: {net_info['network_name']}")
-            print(f"  Contract: {client.contract_address}")
-            print(f"  Wallet: {client.account.address if client.account else 'None'}")
+            net_info = client.get_network_info() if not args.local_evm else {"network_name": "In-Memory Local EVM (Testnet)"}
+            print(f"  Blockchain:       {net_info['network_name']}")
+            print(f"  Contract address: {client.contract_address}")
+            print(f"  Wallet address:   {client.account.address if client.account else 'None'}")
+            print(f"  Image SHA-256:    {file_sha256}")
             print("  Submitting transaction to smart contract...")
 
             tx_result = client.register_hash(
@@ -272,10 +273,10 @@ def run_pipeline():
 
             print("  ✓ Transaction submitted")
             print("  ✓ Transaction confirmed on-chain")
-            print(f"\n  Transaction:\n  {tx_result['transaction_hash']}")
-            print(f"\n  Record ID: {tx_result['record_id']}")
-            print(f"  Block:     {tx_result['block_number']}")
-            print(f"  Gas Used:  {tx_result['gas_used']}")
+            print(f"\n  Transaction hash: {tx_result['transaction_hash']}")
+            print(f"  Block number:     {tx_result['block_number']}")
+            print(f"  Record ID:        {tx_result['record_id']}")
+            print(f"  Gas used:         {tx_result['gas_used']}")
 
             blockchain_info.update({
                 "status": "Confirmed",
