@@ -1,0 +1,11 @@
+{
+  "name": "hh-goa-blockchain",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Biometric Facial Identification & Blockchain Verification Engine (Hacker House Goa 2026)",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview"
+  }
+}
