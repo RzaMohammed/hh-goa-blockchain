@@ -1,0 +1,27 @@
+# Environment & Secrets
+.env
+.venv/
+venv/
+ENV/
+
+# Python Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# ONNX Models cache (can be redownloaded automatically)
+models/*.onnx
+
+# Output artifacts from runs
+output/*
+!output/.gitkeep
+output/*.backup
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
