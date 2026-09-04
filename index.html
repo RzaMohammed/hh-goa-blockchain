@@ -3,44 +3,67 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>HACKER HOUSE GOA // Face Identification & Blockchain Verification Engine</title>
+  <title>CyberID // Hacker House Goa 2026 — Face ID & Blockchain Verification</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Noto+Sans+Devanagari:wght@700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Playfair+Display:wght@700;800&family=Noto+Sans+Devanagari:wght@700&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --bg-page: #04130b;
-      --bg-surface: #061c12;
-      --bg-card: rgba(8, 28, 18, 0.88);
-      --bg-card-hover: rgba(12, 40, 26, 0.95);
-      --bg-darker: #020b06;
+      /* Base Dark Green Palette (Refined & Professional) */
+      --bg-base: #08110c;
+      --bg-subtle: #0d1a13;
+      --bg-surface: #12221a;
+      --bg-surface-hover: #162a20;
+      --bg-surface-active: #1a3226;
+      --bg-code: #070e0a;
 
-      --grid-line: rgba(34, 110, 68, 0.2);
-      --border-green: rgba(42, 130, 82, 0.38);
-      --border-green-glow: rgba(74, 222, 128, 0.45);
+      /* Borders */
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-medium: rgba(52, 211, 153, 0.18);
+      --border-strong: rgba(52, 211, 153, 0.35);
+      --border-focus: #facc15;
 
-      --gold-primary: #ffdf00;
-      --gold-bright: #ffe600;
-      --gold-glow: rgba(255, 223, 0, 0.35);
-      
-      --pink-goa: #ff1b7a;
-      --pink-glow: rgba(255, 27, 122, 0.55);
+      /* Primary Yellow Accent */
+      --accent-yellow: #facc15;
+      --accent-yellow-hover: #eab308;
+      --accent-yellow-subtle: rgba(250, 204, 21, 0.1);
+      --accent-yellow-text: #fde047;
 
-      --emerald-bright: #22c55e;
-      --emerald-glow: rgba(34, 197, 94, 0.35);
-      --alert-crimson: #ef4444;
-      --alert-glow: rgba(239, 68, 68, 0.45);
-      --amber-warn: #f59e0b;
+      /* Goa Magenta Accent (Used strictly for branding badge) */
+      --brand-magenta: #e11d48;
 
-      --text-white: #f0fdf4;
-      --text-gold: #ffdf00;
-      --text-muted: #85a995;
-      --text-subtle: #4f7461;
+      /* Semantic Status Colors */
+      --status-verified: #22c55e;
+      --status-verified-bg: rgba(34, 197, 94, 0.12);
+      --status-verified-border: rgba(34, 197, 94, 0.3);
 
-      --font-serif: 'Playfair Display', Georgia, serif;
-      --font-devanagari: 'Noto Sans Devanagari', sans-serif;
-      --font-sans: 'Space Grotesk', 'Inter', sans-serif;
+      --status-tampered: #ef4444;
+      --status-tampered-bg: rgba(239, 68, 68, 0.12);
+      --status-tampered-border: rgba(239, 68, 68, 0.3);
+
+      --status-lowmatch: #f59e0b;
+      --status-lowmatch-bg: rgba(245, 158, 11, 0.12);
+      --status-lowmatch-border: rgba(245, 158, 11, 0.3);
+
+      --status-noface: #64748b;
+      --status-noface-bg: rgba(100, 116, 139, 0.12);
+      --status-noface-border: rgba(100, 116, 139, 0.3);
+
+      /* Typography */
+      --text-primary: #f1f5f3;
+      --text-secondary: #94a39b;
+      --text-muted: #5e7467;
+
+      --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       --font-mono: 'JetBrains Mono', monospace;
+      --font-display: 'Playfair Display', serif;
+      --font-devanagari: 'Noto Sans Devanagari', sans-serif;
+
+      /* Strict 8px Spacing Constants */
+      --radius-sm: 4px;
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --radius-xl: 12px;
     }
 
     * {
@@ -50,565 +73,558 @@
     }
 
     body {
-      background-color: var(--bg-page);
-      color: var(--text-white);
+      background-color: var(--bg-base);
+      color: var(--text-primary);
       font-family: var(--font-sans);
+      font-size: 14px;
+      line-height: 1.5;
       min-height: 100vh;
-      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
       position: relative;
     }
 
-    /* Cyber Matrix Grid Background */
+    /* Subdued, Non-Distracting Engineering Grid */
     body::before {
       content: '';
       position: fixed;
       inset: 0;
-      background-size: 34px 34px;
+      background-size: 32px 32px;
       background-image: 
-        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
-        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+        linear-gradient(to right, rgba(52, 211, 153, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(52, 211, 153, 0.03) 1px, transparent 1px);
       pointer-events: none;
       z-index: 0;
     }
 
-    .app-wrapper {
+    .dashboard-layout {
       position: relative;
       z-index: 1;
-      max-width: 1400px;
+      max-width: 1360px;
       margin: 0 auto;
-      padding: 18px 32px 70px 32px;
+      padding: 16px 24px 64px 24px;
     }
 
-    /* 1. TOP NAVBAR */
-    .top-nav {
+    /* ------------------------------------------------------------- */
+    /* 1. TOP NAVBAR (Linear / Vercel style)                          */
+    /* ------------------------------------------------------------- */
+    .top-navbar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 4px 0 22px 0;
-    }
-
-    .nav-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .badge-studio {
-      background: var(--gold-primary);
-      color: #000;
-      font-weight: 800;
-      font-size: 0.84rem;
-      padding: 6px 16px;
-      border-radius: 24px;
-      letter-spacing: 0.05em;
-      box-shadow: 0 0 16px var(--gold-glow);
-    }
-
-    .brand-title {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: var(--font-serif);
-      font-size: 1.18rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      color: var(--gold-primary);
-    }
-
-    .badge-goa-pill-mini {
-      background: var(--pink-goa);
-      color: #fff;
-      font-family: var(--font-devanagari);
-      font-weight: 800;
-      font-size: 0.88rem;
-      padding: 2px 10px;
-      border-radius: 12px;
-      box-shadow: 0 0 14px var(--pink-glow);
-      line-height: 1.3;
-    }
-
-    .badge-task {
-      background: rgba(8, 28, 18, 0.9);
-      border: 1px solid var(--border-green);
-      color: var(--text-muted);
-      font-size: 0.78rem;
-      padding: 5px 12px;
-      border-radius: 16px;
-      font-family: var(--font-mono);
-      font-weight: 600;
-    }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .nav-link-hype {
-      color: var(--gold-primary);
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .nav-link-hype:hover {
-      text-shadow: 0 0 12px var(--gold-glow);
-    }
-
-    .badge-chain {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(8, 28, 18, 0.95);
-      border: 1px solid rgba(74, 222, 128, 0.4);
-      color: var(--gold-primary);
-      font-size: 0.8rem;
-      font-weight: 700;
-      padding: 7px 15px;
-      border-radius: 20px;
-      font-family: var(--font-mono);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .badge-chain:hover {
-      border-color: var(--gold-primary);
-      box-shadow: 0 0 18px var(--gold-glow);
-    }
-
-    .pulse-dot {
-      width: 7px;
-      height: 7px;
-      background: var(--gold-primary);
-      border-radius: 50%;
-      box-shadow: 0 0 8px var(--gold-primary);
-      animation: dotPulse 2s infinite ease-in-out;
-    }
-
-    @keyframes dotPulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.3; transform: scale(0.8); }
-    }
-
-    /* 2. HERO BANNER CARD */
-    .hero-card {
-      background: radial-gradient(circle at 50% 40%, #0e3b28 0%, #09281a 60%, #051a11 100%);
-      border: 1px solid var(--border-green);
-      border-radius: 26px;
-      padding: 30px 38px 34px 38px;
-      text-align: center;
-      position: relative;
+      padding: 12px 16px;
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
       margin-bottom: 24px;
-      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(74, 222, 128, 0.25);
-      overflow: hidden;
     }
 
-    .hero-top-info {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.8rem;
-      font-family: var(--font-mono);
-      color: var(--gold-primary);
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      margin-bottom: 16px;
-      text-transform: uppercase;
-    }
-
-    .hero-title-container {
+    .nav-brand-group {
       display: flex;
       align-items: center;
-      justify-content: center;
-      gap: 18px;
-      margin-bottom: 14px;
-    }
-
-    .hero-serif-title {
-      font-family: var(--font-serif);
-      font-size: 4.4rem;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      color: var(--gold-primary);
-      text-transform: uppercase;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 35px var(--gold-glow);
-      line-height: 1;
-    }
-
-    .badge-goa-hero {
-      background: var(--pink-goa);
-      color: #fff;
-      font-family: var(--font-devanagari);
-      font-size: 3.2rem;
-      font-weight: 900;
-      padding: 6px 26px 12px 26px;
-      border-radius: 22px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 38px var(--pink-glow), inset 0 2px 4px rgba(255, 255, 255, 0.4);
-      line-height: 1;
-      transform: translateY(-2px);
-    }
-
-    .hero-subtitle {
-      color: #c9e8d6;
-      font-size: 1rem;
-      font-weight: 500;
-      margin-bottom: 22px;
-      letter-spacing: -0.01em;
-    }
-
-    .tech-badges-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
       gap: 12px;
     }
 
-    .tech-pill {
-      background: rgba(5, 22, 14, 0.85);
-      border: 1px solid var(--border-green);
-      color: #a7e0be;
-      font-size: 0.82rem;
+    .brand-icon-box {
+      width: 28px;
+      height: 28px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-yellow);
+    }
+
+    .brand-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .brand-name {
+      font-family: var(--font-display);
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      color: var(--text-primary);
+    }
+
+    .badge-goa-mini {
+      background: var(--brand-magenta);
+      color: #fff;
+      font-family: var(--font-devanagari);
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 4px;
+      line-height: 1.4;
+    }
+
+    .nav-tag {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-muted);
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
       font-family: var(--font-mono);
-      font-weight: 600;
-      padding: 7px 15px;
-      border-radius: 20px;
+      font-weight: 500;
+    }
+
+    .nav-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn-network-select {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+      background: var(--bg-surface);
+      border: 1px solid var(--border-medium);
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      padding: 6px 12px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      transition: all 0.15s ease;
     }
 
-    .tech-pill svg {
-      color: var(--emerald-bright);
+    .btn-network-select:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--border-strong);
+      color: var(--text-primary);
     }
 
-    /* 3. EXECUTION MODE & SCENARIOS CARD */
-    .mode-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-green);
-      border-radius: 22px;
-      padding: 22px 26px;
+    .network-indicator-dot {
+      width: 6px;
+      height: 6px;
+      background: var(--accent-yellow);
+      border-radius: 50%;
+    }
+
+    .system-status-pill {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .system-status-pill::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      background: var(--status-verified);
+      border-radius: 50%;
+    }
+
+    /* ------------------------------------------------------------- */
+    /* 2. PROJECT CONTEXT HEADER                                      */
+    /* ------------------------------------------------------------- */
+    .project-header-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 24px;
       margin-bottom: 24px;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
     }
 
-    .mode-header {
+    .project-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .project-location {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--accent-yellow-text);
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .project-studio {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .project-title-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .project-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      color: var(--text-primary);
+    }
+
+    .project-desc {
+      color: var(--text-secondary);
+      font-size: 0.9rem;
+      max-width: 820px;
+      margin-bottom: 16px;
+      line-height: 1.6;
+    }
+
+    .tech-spec-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .spec-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+    }
+
+    .spec-chip svg {
+      width: 12px;
+      height: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ------------------------------------------------------------- */
+    /* 3. EXECUTION CONTROL & SIMULATION WORKSPACE                   */
+    /* ------------------------------------------------------------- */
+    .control-deck-card {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+      margin-bottom: 24px;
+    }
+
+    .control-deck-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-subtle);
     }
 
-    .mode-title-group {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    .mode-icon-circle {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(34, 197, 94, 0.15);
-      border: 1px solid var(--emerald-bright);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--emerald-bright);
-    }
-
-    .mode-label {
-      font-size: 0.94rem;
-      font-weight: 800;
-      color: var(--gold-primary);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+    .control-heading-wrap {
       display: flex;
       align-items: center;
       gap: 10px;
     }
 
-    .badge-sandbox-mode {
-      background: rgba(255, 27, 122, 0.16);
-      border: 1px solid rgba(255, 27, 122, 0.5);
-      color: var(--pink-goa);
-      font-size: 0.74rem;
-      padding: 3px 9px;
-      border-radius: 8px;
-      font-family: var(--font-mono);
+    .control-heading {
+      font-size: 0.85rem;
       font-weight: 700;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
     }
 
-    .mode-desc {
-      font-size: 0.82rem;
-      color: var(--text-muted);
-      margin-top: 3px;
+    .segmented-control {
+      display: inline-flex;
+      background: var(--bg-base);
+      border: 1px solid var(--border-subtle);
+      padding: 3px;
+      border-radius: var(--radius-md);
     }
 
-    .toggle-group {
-      display: flex;
-      background: rgba(3, 14, 9, 0.9);
-      padding: 4px;
-      border-radius: 14px;
-      border: 1px solid var(--border-green);
-    }
-
-    .toggle-btn {
+    .segment-btn {
       border: none;
       background: transparent;
       color: var(--text-muted);
       font-family: var(--font-sans);
-      font-size: 0.85rem;
-      font-weight: 700;
-      padding: 8px 18px;
-      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
+      gap: 6px;
+      transition: all 0.15s ease;
     }
 
-    .toggle-btn.active {
-      background: var(--gold-primary);
-      color: #000;
-      box-shadow: 0 0 16px var(--gold-glow);
+    .segment-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .segment-btn.active {
+      background: var(--bg-surface);
+      color: var(--text-primary);
+      border: 1px solid var(--border-medium);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
 
     /* Simulation Scenario Grid */
-    .section-label {
-      font-size: 0.78rem;
+    .section-micro-label {
+      font-size: 0.72rem;
       font-family: var(--font-mono);
-      font-weight: 700;
-      color: var(--gold-primary);
-      letter-spacing: 0.08em;
+      font-weight: 600;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
     }
 
-    .scenarios-grid {
+    .scenario-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-      margin-bottom: 22px;
+      gap: 12px;
+      margin-bottom: 20px;
     }
 
-    .scenario-card {
-      background: rgba(5, 22, 14, 0.7);
-      border: 1px solid var(--border-green);
-      border-radius: 16px;
-      padding: 15px 18px;
+    .scenario-tile {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       position: relative;
     }
 
-    .scenario-card:hover {
-      background: rgba(10, 36, 24, 0.9);
-      border-color: var(--border-green-glow);
-      transform: translateY(-2px);
+    .scenario-tile:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--border-medium);
     }
 
-    .scenario-card.active {
-      border-color: var(--gold-primary);
-      background: rgba(16, 50, 34, 0.95);
-      box-shadow: 0 0 20px rgba(255, 223, 0, 0.25);
+    .scenario-tile.active {
+      border-color: var(--border-focus);
+      background: var(--bg-surface-active);
     }
 
-    .scenario-top {
+    .scenario-header-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 6px;
     }
 
-    .scenario-title {
-      font-size: 0.9rem;
+    .scenario-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .scenario-badge-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .scenario-val {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .scenario-note {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    /* Quick Load Test Dataset */
+    .dataset-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .dataset-tile {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 10px 12px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .dataset-tile:hover {
+      background: var(--bg-surface-hover);
+      border-color: var(--border-medium);
+    }
+
+    .dataset-tile.active {
+      border-color: var(--border-focus);
+      background: var(--bg-surface-active);
+    }
+
+    .dataset-preview {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-md);
+      object-fit: cover;
+      background: #000;
+      border: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .dataset-meta {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .dataset-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dataset-sub {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-family: var(--font-mono);
+    }
+
+    /* ------------------------------------------------------------- */
+    /* 4. APPLICATION NAVIGATION TABS                                */
+    /* ------------------------------------------------------------- */
+    .app-tabs-bar {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1px solid var(--border-subtle);
+      margin-bottom: 24px;
+      padding-bottom: 2px;
+      overflow-x: auto;
+    }
+
+    .tab-button {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+      position: relative;
+    }
+
+    .tab-button:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .tab-button.active {
+      color: var(--text-primary);
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+    }
+
+    .tab-button.active::after {
+      content: '';
+      position: absolute;
+      bottom: -3px;
+      left: 12px;
+      right: 12px;
+      height: 2px;
+      background: var(--accent-yellow);
+      border-radius: 1px;
+    }
+
+    .tab-view {
+      display: none;
+    }
+
+    .tab-view.active {
+      display: block;
+      animation: viewFade 0.2s ease;
+    }
+
+    @keyframes viewFade {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ------------------------------------------------------------- */
+    /* 5. WORKSPACE GRIDS & PRODUCTION CARDS                         */
+    /* ------------------------------------------------------------- */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 20px;
+    }
+
+    .console-panel {
+      background: var(--bg-subtle);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 20px;
+    }
+
+    .panel-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .panel-heading {
+      font-size: 0.88rem;
       font-weight: 700;
+      color: var(--text-primary);
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .scenario-score {
-      font-family: var(--font-mono);
-      font-size: 0.82rem;
-      font-weight: 700;
-    }
-
-    .scenario-subtext {
-      font-size: 0.75rem;
+    .panel-heading svg {
+      width: 16px;
+      height: 16px;
       color: var(--text-muted);
-      line-height: 1.35;
     }
 
-    /* Quick Load Portraits */
-    .portraits-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
-    }
-
-    .portrait-card {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      background: rgba(5, 22, 14, 0.7);
-      border: 1px solid var(--border-green);
-      border-radius: 15px;
-      padding: 10px 14px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .portrait-card:hover {
-      background: rgba(10, 36, 24, 0.9);
-      border-color: var(--border-green-glow);
-    }
-
-    .portrait-card.active {
-      border-color: var(--gold-primary);
-      background: rgba(16, 50, 34, 0.95);
-      box-shadow: 0 0 18px rgba(255, 223, 0, 0.3);
-    }
-
-    .portrait-thumb {
-      width: 46px;
-      height: 46px;
-      border-radius: 10px;
-      object-fit: cover;
-      border: 1px solid var(--border-green);
-      background: #000;
-    }
-
-    .portrait-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .portrait-name {
-      font-size: 0.86rem;
-      font-weight: 700;
-      color: var(--text-white);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .portrait-role {
-      font-size: 0.73rem;
-      color: var(--text-muted);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    /* 4. MASTER NAVIGATION TABS */
-    .nav-tabs-wrapper {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 24px;
-      background: rgba(6, 24, 16, 0.9);
-      padding: 6px;
-      border-radius: 16px;
-      border: 1px solid var(--border-green);
-      overflow-x: auto;
-    }
-
-    .tab-trigger {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-family: var(--font-sans);
-      font-size: 0.9rem;
-      font-weight: 700;
-      padding: 10px 20px;
-      border-radius: 12px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      white-space: nowrap;
-      transition: all 0.2s ease;
-    }
-
-    .tab-trigger:hover {
-      color: var(--text-white);
-      background: rgba(255, 255, 255, 0.04);
-    }
-
-    .tab-trigger.active {
-      color: #000;
-      background: linear-gradient(135deg, var(--gold-primary), #eab308);
-      box-shadow: 0 0 18px var(--gold-glow);
-    }
-
-    .tab-pane {
-      display: none;
-    }
-
-    .tab-pane.active {
-      display: block;
-      animation: tabFadeIn 0.3s ease;
-    }
-
-    @keyframes tabFadeIn {
-      from { opacity: 0; transform: translateY(6px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* 5. WORKSPACE GRIDS & PANELS */
-    .workspace-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-    }
-
-    .panel-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-green);
-      border-radius: 22px;
-      padding: 24px;
-      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45);
-    }
-
-    .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 18px;
-      padding-bottom: 14px;
-      border-bottom: 1px solid var(--border-green);
-    }
-
-    .panel-title {
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: var(--gold-primary);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      letter-spacing: 0.04em;
-    }
-
-    /* Face HUD Canvas */
-    .face-hud-box {
+    /* Canvas / Biometric Inspection View */
+    .biometric-viewport {
       position: relative;
       width: 100%;
-      height: 330px;
-      background: var(--bg-darker);
-      border-radius: 16px;
+      height: 320px;
+      background: var(--bg-code);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
       overflow: hidden;
-      border: 1px solid var(--border-green);
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 18px;
+      margin-bottom: 16px;
     }
 
     #faceCanvas {
@@ -617,254 +633,223 @@
       object-fit: contain;
     }
 
-    .hud-scan-line {
+    .viewport-status-bar {
       position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
-      box-shadow: 0 0 14px var(--gold-primary);
-      animation: scanAnim 2.8s infinite linear;
-      display: none;
-    }
-
-    @keyframes scanAnim {
-      0% { top: 0%; opacity: 0; }
-      15% { opacity: 1; }
-      85% { opacity: 1; }
-      100% { top: 100%; opacity: 0; }
-    }
-
-    .hud-tags-row {
-      position: absolute;
-      bottom: 10px;
-      left: 10px;
-      right: 10px;
+      bottom: 8px;
+      left: 8px;
+      right: 8px;
       display: flex;
       justify-content: space-between;
       pointer-events: none;
     }
 
-    .hud-pill {
-      background: rgba(2, 10, 6, 0.88);
-      border: 1px solid var(--border-green);
-      color: var(--gold-primary);
-      font-size: 0.72rem;
+    .viewport-tag {
+      background: rgba(0, 0, 0, 0.75);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      font-size: 0.7rem;
       font-family: var(--font-mono);
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 6px;
+      padding: 3px 8px;
+      border-radius: var(--radius-sm);
     }
 
-    /* Controls & Execution Button */
-    .controls-row {
+    /* Form Controls */
+    .form-group-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-bottom: 18px;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
-    .control-box {
+    .form-control-block {
       display: flex;
       flex-direction: column;
       gap: 6px;
     }
 
-    .control-label {
-      font-size: 0.78rem;
-      font-family: var(--font-mono);
+    .control-title {
+      font-size: 0.75rem;
       color: var(--text-muted);
       font-weight: 600;
       display: flex;
       justify-content: space-between;
     }
 
-    .control-input {
-      background: rgba(3, 14, 9, 0.85);
-      border: 1px solid var(--border-green);
-      border-radius: 10px;
-      padding: 8px 12px;
-      color: var(--text-white);
+    .ui-select, .ui-input {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 7px 10px;
+      color: var(--text-primary);
       font-family: var(--font-sans);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       outline: none;
+      transition: border 0.15s ease;
     }
 
-    .control-input:focus {
-      border-color: var(--gold-primary);
-      box-shadow: 0 0 12px var(--gold-glow);
+    .ui-select:focus, .ui-input:focus {
+      border-color: var(--border-focus);
     }
 
-    .btn-execute {
-      background: linear-gradient(135deg, var(--gold-primary), #d4af37);
+    .btn-action-primary {
+      background: var(--accent-yellow);
       color: #000;
       font-family: var(--font-sans);
-      font-size: 1rem;
-      font-weight: 800;
-      letter-spacing: 0.05em;
+      font-size: 0.88rem;
+      font-weight: 700;
       border: none;
-      padding: 14px 24px;
-      border-radius: 14px;
+      padding: 10px 18px;
+      border-radius: var(--radius-md);
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
-      box-shadow: 0 6px 20px var(--gold-glow);
-      transition: all 0.2s ease;
+      transition: background 0.15s ease;
     }
 
-    .btn-execute:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 28px rgba(255, 223, 0, 0.5);
+    .btn-action-primary:hover:not(:disabled) {
+      background: var(--accent-yellow-hover);
     }
 
-    .btn-execute:disabled {
+    .btn-action-primary:disabled {
       opacity: 0.5;
       cursor: not-allowed;
     }
 
-    /* 6. PIPELINE STEPPER */
-    .stepper {
+    /* ------------------------------------------------------------- */
+    /* 6. PIPELINE STEPPER & TELEMETRY                               */
+    /* ------------------------------------------------------------- */
+    .stepper-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      margin-bottom: 20px;
+      gap: 8px;
+      margin-bottom: 18px;
     }
 
-    .step-item {
+    .stepper-row {
       display: flex;
       align-items: center;
-      gap: 14px;
-      padding: 11px 16px;
-      background: rgba(4, 18, 12, 0.65);
-      border: 1px solid var(--border-green);
-      border-radius: 12px;
-      transition: all 0.3s ease;
+      gap: 12px;
+      padding: 10px 12px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      transition: all 0.2s ease;
     }
 
-    .step-item.active {
-      border-color: var(--gold-primary);
-      background: rgba(255, 223, 0, 0.08);
-      box-shadow: 0 0 14px rgba(255, 223, 0, 0.2);
+    .stepper-row.active {
+      border-color: var(--accent-yellow);
+      background: var(--bg-surface-active);
     }
 
-    .step-item.completed {
-      border-color: rgba(34, 197, 94, 0.5);
-      background: rgba(34, 197, 94, 0.08);
+    .stepper-row.completed {
+      border-color: rgba(34, 197, 94, 0.3);
     }
 
-    .step-num {
-      width: 26px;
-      height: 26px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.08);
+    .step-index-badge {
+      width: 22px;
+      height: 22px;
+      border-radius: var(--radius-sm);
+      background: var(--bg-base);
       color: var(--text-muted);
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       font-family: var(--font-mono);
-      font-weight: 700;
+      font-weight: 600;
       display: flex;
       align-items: center;
       justify-content: center;
     }
 
-    .step-item.active .step-num {
-      background: var(--gold-primary);
+    .stepper-row.active .step-index-badge {
+      background: var(--accent-yellow);
       color: #000;
     }
 
-    .step-item.completed .step-num {
-      background: var(--emerald-bright);
+    .stepper-row.completed .step-index-badge {
+      background: var(--status-verified);
       color: #000;
     }
 
-    .step-body {
+    .step-text-wrap {
       flex: 1;
     }
 
-    .step-name {
-      font-size: 0.88rem;
-      font-weight: 700;
-      color: var(--text-white);
+    .step-main-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-primary);
     }
 
-    .step-desc {
-      font-size: 0.73rem;
+    .step-sub-desc {
+      font-size: 0.7rem;
       color: var(--text-muted);
       font-family: var(--font-mono);
     }
 
-    .step-status {
-      font-size: 0.75rem;
+    .step-state-badge {
+      font-size: 0.72rem;
       font-family: var(--font-mono);
-      font-weight: 700;
-      color: var(--text-subtle);
+      font-weight: 600;
+      color: var(--text-muted);
     }
 
-    .step-item.active .step-status {
-      color: var(--gold-primary);
-      animation: statusBlink 1s infinite alternate;
+    .stepper-row.active .step-state-badge {
+      color: var(--accent-yellow-text);
     }
 
-    .step-item.completed .step-status {
-      color: var(--emerald-bright);
+    .stepper-row.completed .step-state-badge {
+      color: var(--status-verified);
     }
 
-    @keyframes statusBlink {
-      from { opacity: 0.3; }
-      to { opacity: 1; }
-    }
-
-    /* Candidates & Receipts */
-    .candidates-box {
-      margin-top: 16px;
+    /* Candidate Discovery Cards */
+    .candidates-deck {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
+      margin-top: 12px;
     }
 
-    .candidate-row {
+    .candidate-entry {
       display: flex;
       align-items: center;
       gap: 12px;
-      background: rgba(4, 18, 12, 0.8);
-      border: 1px solid var(--border-green);
-      border-radius: 12px;
-      padding: 10px 14px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 8px 12px;
     }
 
-    .candidate-row.winner {
-      border-color: var(--emerald-bright);
-      background: rgba(34, 197, 94, 0.1);
-      box-shadow: 0 0 16px rgba(34, 197, 94, 0.2);
+    .candidate-entry.best {
+      border-color: var(--status-verified-border);
+      background: var(--status-verified-bg);
     }
 
-    .candidate-thumb {
-      width: 48px;
-      height: 48px;
-      border-radius: 8px;
+    .candidate-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
       object-fit: cover;
-      border: 1px solid var(--border-green);
       background: #000;
+      border: 1px solid var(--border-subtle);
     }
 
-    .candidate-info {
+    .candidate-info-box {
       flex: 1;
       min-width: 0;
     }
 
-    .candidate-title {
-      font-size: 0.84rem;
-      font-weight: 700;
+    .candidate-label {
+      font-size: 0.8rem;
+      font-weight: 600;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    .candidate-url {
-      font-size: 0.71rem;
+    .candidate-link {
+      font-size: 0.68rem;
       color: var(--text-muted);
       font-family: var(--font-mono);
       white-space: nowrap;
@@ -872,51 +857,66 @@
       text-overflow: ellipsis;
     }
 
-    .sim-bar-container {
+    .metric-bar-group {
       margin-top: 4px;
       display: flex;
       align-items: center;
       gap: 8px;
     }
 
-    .sim-track {
+    .metric-track {
       flex: 1;
-      height: 5px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 3px;
+      height: 4px;
+      background: var(--bg-base);
+      border-radius: 2px;
       overflow: hidden;
     }
 
-    .sim-level {
+    .metric-fill {
       height: 100%;
-      border-radius: 3px;
-      background: linear-gradient(90deg, var(--gold-primary), var(--emerald-bright));
+      border-radius: 2px;
+      background: var(--status-verified);
     }
 
-    .sim-val {
-      font-size: 0.75rem;
+    .metric-score-label {
+      font-size: 0.72rem;
       font-family: var(--font-mono);
-      font-weight: 700;
-      color: var(--emerald-bright);
-      width: 42px;
+      font-weight: 600;
+      color: var(--status-verified);
+      width: 38px;
       text-align: right;
     }
 
-    .receipt-panel {
-      background: rgba(2, 10, 6, 0.95);
-      border: 1px solid var(--border-green);
-      border-radius: 16px;
-      padding: 18px;
-      margin-top: 18px;
+    /* On-Chain Receipt Details */
+    .receipt-container {
+      background: var(--bg-code);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      margin-top: 16px;
       font-family: var(--font-mono);
-      font-size: 0.78rem;
+      font-size: 0.75rem;
     }
 
-    .receipt-line {
+    .receipt-header {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--accent-yellow-text);
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .receipt-data-row {
       display: flex;
       justify-content: space-between;
-      padding: 6px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .receipt-data-row:last-child {
+      border-bottom: none;
     }
 
     .receipt-key {
@@ -924,522 +924,459 @@
     }
 
     .receipt-val {
-      color: var(--text-white);
-      font-weight: 700;
+      color: var(--text-primary);
+      font-weight: 600;
       word-break: break-all;
       text-align: right;
       max-width: 65%;
     }
 
     .receipt-val.highlight {
-      color: var(--gold-primary);
+      color: var(--accent-yellow-text);
     }
 
-    .verdict-banner {
-      padding: 18px;
-      border-radius: 14px;
-      text-align: center;
-      margin: 18px 0;
-      font-family: var(--font-sans);
+    /* Status Verdict Cards */
+    .status-verdict-box {
+      padding: 14px 16px;
+      border-radius: var(--radius-md);
+      margin: 16px 0;
     }
 
-    .verdict-pass {
-      background: rgba(34, 197, 94, 0.12);
-      border: 2px solid var(--emerald-bright);
-      box-shadow: 0 0 24px var(--emerald-glow);
+    .status-verdict-box.verified {
+      background: var(--status-verified-bg);
+      border: 1px solid var(--status-verified-border);
+      color: var(--status-verified);
     }
 
-    .verdict-pass h3 {
-      color: var(--emerald-bright);
-      font-size: 1.25rem;
-      margin-bottom: 6px;
+    .status-verdict-box.tampered {
+      background: var(--status-tampered-bg);
+      border: 1px solid var(--status-tampered-border);
+      color: var(--status-tampered);
     }
 
-    .verdict-fail {
-      background: rgba(239, 68, 68, 0.14);
-      border: 2px solid var(--alert-crimson);
-      box-shadow: 0 0 24px var(--alert-glow);
+    .status-verdict-box h4 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      margin-bottom: 4px;
     }
 
-    .verdict-fail h3 {
-      color: var(--alert-crimson);
-      font-size: 1.25rem;
-      margin-bottom: 6px;
+    .status-verdict-box p {
+      font-size: 0.78rem;
+      color: var(--text-secondary);
     }
 
-    /* Tamper Visualizer Diff Cards */
-    .diff-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-      margin-top: 18px;
-    }
-
-    .diff-box {
-      background: rgba(3, 14, 9, 0.9);
-      border: 1px solid var(--border-green);
-      border-radius: 14px;
-      padding: 16px;
-    }
-
-    .diff-box-title {
-      font-size: 0.85rem;
-      font-weight: 800;
-      font-family: var(--font-mono);
-      margin-bottom: 8px;
-    }
-
-    .diff-code-view {
-      background: rgba(0, 0, 0, 0.6);
-      border: 1px solid var(--border-green);
-      border-radius: 8px;
-      padding: 10px;
-      font-family: var(--font-mono);
-      font-size: 0.74rem;
-      word-break: break-all;
-      line-height: 1.5;
-    }
-
-    /* Ledger Table */
-    .ledger-table {
+    /* Ledger Table (Professional Developer View) */
+    .data-table {
       width: 100%;
       border-collapse: collapse;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-family: var(--font-mono);
       text-align: left;
     }
 
-    .ledger-table th {
-      padding: 12px 14px;
+    .data-table th {
+      padding: 10px 12px;
       color: var(--text-muted);
-      border-bottom: 1px solid var(--border-green);
+      border-bottom: 1px solid var(--border-subtle);
+      font-weight: 600;
     }
 
-    .ledger-table td {
-      padding: 12px 14px;
-      border-bottom: 1px solid rgba(42, 130, 82, 0.2);
+    .data-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: var(--text-secondary);
     }
 
+    .data-table tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Diff View */
+    .diff-two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .diff-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+    }
+
+    .diff-title {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .diff-box {
+      background: var(--bg-code);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-sm);
+      padding: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      word-break: break-all;
+    }
+
+    /* Responsive */
     @media (max-width: 1024px) {
-      .scenarios-grid, .portraits-grid, .diff-grid {
+      .scenario-grid, .dataset-grid, .diff-two-col {
         grid-template-columns: repeat(2, 1fr);
       }
-      .workspace-grid {
+      .dashboard-grid {
         grid-template-columns: 1fr;
-      }
-      .hero-serif-title {
-        font-size: 3rem;
-      }
-      .badge-goa-hero {
-        font-size: 2.2rem;
-        padding: 4px 18px;
       }
     }
   </style>
 </head>
 <body>
 
-  <div class="app-wrapper">
+  <div class="dashboard-layout">
 
     <!-- 1. TOP NAVBAR -->
-    <header class="top-nav">
-      <div class="nav-left">
-        <div class="badge-studio">2:41PM STUDIO</div>
-        <div class="brand-title">
-          <span>HACKER HOUSE</span>
-          <span class="badge-goa-pill-mini">गोवा</span>
-        </div>
-        <div class="badge-task">Task 3 Shortlisting</div>
-      </div>
-
-      <div class="nav-right">
-        <span class="nav-link-hype" onclick="triggerHype()">CHECK HYPE</span>
-        <div class="badge-chain" id="chainStatusBtn" onclick="toggleChainMode()">
-          <span class="pulse-dot"></span>
-          <span id="chainLabel">SOLANA DEVNET ↗</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- 2. HERO BANNER -->
-    <section class="hero-card">
-      <div class="hero-top-info">
-        <span>● GOA, INDIA • 28 - 31 OCT 2026</span>
-        <span>2:41 PM STUDIO</span>
-      </div>
-
-      <div class="hero-title-container">
-        <h1 class="hero-serif-title">HACKER</h1>
-        <div class="badge-goa-hero">गोवा</div>
-        <h1 class="hero-serif-title">HOUSE</h1>
-      </div>
-
-      <p class="hero-subtitle">
-        Off-chain Biometric Facial Identification & Solana Devnet / Ethereum Sepolia Blockchain Verification Engine
-      </p>
-
-      <div class="tech-badges-row">
-        <div class="tech-pill">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-          </svg>
-          <span>InsightFace Buffalo_L 512-D / YuNet SFace</span>
-        </div>
-        <div class="tech-pill">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <span>SerpApi Visual Search</span>
-        </div>
-        <div class="tech-pill">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polyline points="16 18 22 12 16 6"></polyline>
-            <polyline points="8 6 2 12 8 18"></polyline>
-          </svg>
-          <span>RFC 8785 Canonical JSON</span>
-        </div>
-        <div class="tech-pill">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <header class="top-navbar">
+      <div class="nav-brand-group">
+        <div class="brand-icon-box">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
             <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
           </svg>
-          <span>Solana SPL Memo v2 & Sepolia Solidity</span>
+        </div>
+        <div class="brand-title-wrap">
+          <span class="brand-name">Hacker House</span>
+          <span class="badge-goa-mini">गोवा</span>
+        </div>
+        <span class="nav-tag">Task 3: Production Pipeline</span>
+      </div>
+
+      <div class="nav-controls">
+        <div class="system-status-pill">System Operational</div>
+        <button class="btn-network-select" id="networkToggleBtn" onclick="toggleNetworkSelection()">
+          <span class="network-indicator-dot"></span>
+          <span id="activeNetworkLabel">Solana Devnet (SPL Memo)</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. PROJECT CONTEXT HEADER -->
+    <section class="project-header-card">
+      <div class="project-meta-row">
+        <span class="project-location">Goa, India • October 28–31, 2026</span>
+        <span class="project-studio">2:41 PM Studio</span>
+      </div>
+
+      <div class="project-title-row">
+        <h1 class="project-title">Biometric Face Identification & On-Chain Ledger</h1>
+      </div>
+
+      <p class="project-desc">
+        End-to-end media verification engine: extracts 512-d deep metric embeddings from input portraits, queries Google Lens reverse-image index, evaluates cosine similarity, computes RFC 8785 / SHA-256 digests, and notarizes immutable proofs on-chain.
+      </p>
+
+      <div class="tech-spec-bar">
+        <div class="spec-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <span>OpenCV YuNet + SFace (512-d)</span>
+        </div>
+        <div class="spec-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>SerpApi Reverse Search</span>
+        </div>
+        <div class="spec-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+          <span>RFC 8785 Canonical SHA-256</span>
+        </div>
+        <div class="spec-chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/></svg>
+          <span>Solana Memo v2 / Sepolia Solidity</span>
         </div>
       </div>
     </section>
 
-    <!-- 3. EXECUTION MODE & SCENARIOS -->
-    <section class="mode-card">
-      <div class="mode-header">
-        <div class="mode-title-group">
-          <div class="mode-icon-circle">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
-            </svg>
-          </div>
-          <div>
-            <div class="mode-label">
-              <span>EXECUTION MODE</span>
-              <span class="badge-sandbox-mode">SANDBOX SIMULATOR</span>
-            </div>
-            <div class="mode-desc">Test full pipeline, realistic stage timing, and cryptographic tamper audit without local GPU.</div>
-          </div>
+    <!-- 3. EXECUTION CONTROL & SIMULATION DECK -->
+    <section class="control-deck-card">
+      <div class="control-deck-top">
+        <div class="control-heading-wrap">
+          <span class="control-heading">Execution Control</span>
+          <span class="nav-tag" id="currentExecModeTag">Sandbox Simulator</span>
         </div>
 
-        <div class="toggle-group">
-          <button class="toggle-btn" id="liveApiBtn" onclick="setExecutionMode('live')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-            </svg>
-            <span>Live API</span>
+        <div class="segmented-control">
+          <button class="segment-btn active" id="segSandboxBtn" onclick="selectExecutionMode('sandbox')">
+            <span>Sandbox Mode</span>
           </button>
-          <button class="toggle-btn active" id="demoSandboxBtn" onclick="setExecutionMode('sandbox')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <rect x="2" y="2" width="20" height="20" rx="4"></rect>
-              <circle cx="8" cy="8" r="1.5"></circle>
-              <circle cx="16" cy="8" r="1.5"></circle>
-              <circle cx="8" cy="16" r="1.5"></circle>
-              <circle cx="16" cy="16" r="1.5"></circle>
-            </svg>
-            <span>Demo Sandbox</span>
+          <button class="segment-btn" id="segLiveBtn" onclick="selectExecutionMode('live')">
+            <span>Live Python API</span>
           </button>
         </div>
       </div>
 
-      <!-- SIMULATION SCENARIO SELECTOR -->
-      <div class="section-label">SIMULATION SCENARIO:</div>
-      <div class="scenarios-grid">
-        <div class="scenario-card active" id="scen-verified" onclick="selectScenario('verified')">
-          <div class="scenario-top">
-            <span class="scenario-title" style="color: var(--emerald-bright)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+      <!-- Simulation Scenarios -->
+      <div class="section-micro-label">Test Scenarios</div>
+      <div class="scenario-grid">
+        <div class="scenario-tile active" id="scen-verified" onclick="applyTestScenario('verified')">
+          <div class="scenario-header-row">
+            <span class="scenario-badge" style="color: var(--status-verified)">
+              <span class="scenario-badge-dot" style="background: var(--status-verified)"></span>
               Verified
             </span>
-            <span class="scenario-score" style="color: var(--emerald-bright)">94.8%</span>
+            <span class="scenario-val" style="color: var(--status-verified)">94.8% Match</span>
           </div>
-          <div class="scenario-subtext">Authentic face match + Solana Devnet proof</div>
+          <div class="scenario-note">Authentic face match recorded & notarized on-chain.</div>
         </div>
 
-        <div class="scenario-card" id="scen-tampered" onclick="selectScenario('tampered')">
-          <div class="scenario-top">
-            <span class="scenario-title" style="color: var(--pink-goa)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <div class="scenario-tile" id="scen-tampered" onclick="applyTestScenario('tampered')">
+          <div class="scenario-header-row">
+            <span class="scenario-badge" style="color: var(--status-tampered)">
+              <span class="scenario-badge-dot" style="background: var(--status-tampered)"></span>
               Tampered
             </span>
-            <span class="scenario-score" style="color: var(--pink-goa)">Audit X</span>
+            <span class="scenario-val" style="color: var(--status-tampered)">Audit X</span>
           </div>
-          <div class="scenario-subtext">Off-chain altered file reveals forgery</div>
+          <div class="scenario-note">Altered file bytes fail SHA-256 cryptographic check.</div>
         </div>
 
-        <div class="scenario-card" id="scen-lowmatch" onclick="selectScenario('lowmatch')">
-          <div class="scenario-top">
-            <span class="scenario-title" style="color: var(--amber-warn)">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <div class="scenario-tile" id="scen-lowmatch" onclick="applyTestScenario('lowmatch')">
+          <div class="scenario-header-row">
+            <span class="scenario-badge" style="color: var(--status-lowmatch)">
+              <span class="scenario-badge-dot" style="background: var(--status-lowmatch)"></span>
               Low Match
             </span>
-            <span class="scenario-score" style="color: var(--amber-warn)">68.2%</span>
+            <span class="scenario-val" style="color: var(--status-lowmatch)">68.2%</span>
           </div>
-          <div class="scenario-subtext">Lookalike fails below 85% threshold</div>
+          <div class="scenario-note">Distant lookalike fails the 85.0% threshold gate.</div>
         </div>
 
-        <div class="scenario-card" id="scen-noface" onclick="selectScenario('noface')">
-          <div class="scenario-top">
-            <span class="scenario-title" style="color: #94a3b8">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+        <div class="scenario-tile" id="scen-noface" onclick="applyTestScenario('noface')">
+          <div class="scenario-header-row">
+            <span class="scenario-badge" style="color: var(--status-noface)">
+              <span class="scenario-badge-dot" style="background: var(--status-noface)"></span>
               No Face
             </span>
-            <span class="scenario-score" style="color: #94a3b8">0 Faces</span>
+            <span class="scenario-val" style="color: var(--status-noface)">0 Detected</span>
           </div>
-          <div class="scenario-subtext">Non-face image halts at Stage 1</div>
+          <div class="scenario-note">Image lacks human face; halts at Stage 1.</div>
         </div>
       </div>
 
-      <!-- QUICK LOAD SAMPLE PORTRAITS -->
-      <div class="section-label">QUICK-LOAD SAMPLE PORTRAITS:</div>
-      <div class="portraits-grid">
-        <div class="portrait-card active" id="port-person" onclick="loadPortrait('person', 'Tech Executive (Authentic)', 'Keynote Speaker at Tech Summit', this)">
-          <img id="thumb-person" class="portrait-thumb" alt="Tech Executive" />
-          <div class="portrait-info">
-            <div class="portrait-name">Tech Executive (Authentic)</div>
-            <div class="portrait-role">Keynote Speaker at Tech Summit</div>
+      <!-- Quick Load Test Dataset -->
+      <div class="section-micro-label">Test Datasets</div>
+      <div class="dataset-grid">
+        <div class="dataset-tile active" id="data-person" onclick="loadDataset('person', 'Tech Executive', 'input/person.jpg', this)">
+          <img id="img-person" class="dataset-preview" alt="Executive" />
+          <div class="dataset-meta">
+            <div class="dataset-name">Tech Executive</div>
+            <div class="dataset-sub">input/person.jpg</div>
           </div>
         </div>
 
-        <div class="portrait-card" id="port-tamper" onclick="loadPortrait('tamper', 'Tamper Attack Case', 'Altered Metadata Simulation', this)">
-          <img id="thumb-tamper" class="portrait-thumb" alt="Tamper Attack" />
-          <div class="portrait-info">
-            <div class="portrait-name">Tamper Attack Case</div>
-            <div class="portrait-role">Altered Metadata Simulation</div>
+        <div class="dataset-tile" id="data-tamper" onclick="loadDataset('tamper', 'Tampered Attack Case', 'input/candidate_same.jpg', this)">
+          <img id="img-tamper" class="dataset-preview" alt="Tampered" />
+          <div class="dataset-meta">
+            <div class="dataset-name">Tamper Attack Case</div>
+            <div class="dataset-sub">input/candidate_same.jpg</div>
           </div>
         </div>
 
-        <div class="portrait-card" id="port-lookalike" onclick="loadPortrait('lookalike', 'Lookalike (Low Similarity)', 'Distant Resemblance', this)">
-          <img id="thumb-lookalike" class="portrait-thumb" alt="Lookalike" />
-          <div class="portrait-info">
-            <div class="portrait-name">Lookalike (Low Similarity)</div>
-            <div class="portrait-role">Distant Resemblance</div>
+        <div class="dataset-tile" id="data-lookalike" onclick="loadDataset('lookalike', 'Lookalike Subject', 'input/candidate_different.jpg', this)">
+          <img id="img-lookalike" class="dataset-preview" alt="Lookalike" />
+          <div class="dataset-meta">
+            <div class="dataset-name">Lookalike Subject</div>
+            <div class="dataset-sub">input/candidate_different.jpg</div>
           </div>
         </div>
 
-        <div class="portrait-card" id="port-noface" onclick="loadPortrait('noface', 'Landscape (No Face)', 'Scenery / Abstract', this)">
-          <img id="thumb-noface" class="portrait-thumb" alt="Landscape" />
-          <div class="portrait-info">
-            <div class="portrait-name">Landscape (No Face)</div>
-            <div class="portrait-role">Scenery / Abstract</div>
+        <div class="dataset-tile" id="data-noface" onclick="loadDataset('noface', 'Landscape (No Face)', 'input/no_face.jpg', this)">
+          <img id="img-noface" class="dataset-preview" alt="Landscape" />
+          <div class="dataset-meta">
+            <div class="dataset-name">Landscape (No Face)</div>
+            <div class="dataset-sub">input/no_face.jpg</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 4. MASTER NAVIGATION TABS -->
-    <div class="nav-tabs-wrapper">
-      <button class="tab-trigger active" onclick="switchMainTab('tab-pipeline', this)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-        </svg>
+    <!-- 4. APPLICATION NAVIGATION TABS -->
+    <nav class="app-tabs-bar">
+      <button class="tab-button active" onclick="switchConsoleTab('tab-pipeline', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         Pipeline Execution
       </button>
-      <button class="tab-trigger" onclick="switchMainTab('tab-verify', this)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-          <polyline points="9 12 11 14 15 10"></polyline>
-        </svg>
-        Integrity Verification & Audit
+      <button class="tab-button" onclick="switchConsoleTab('tab-verify', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        Integrity Verification
       </button>
-      <button class="tab-trigger" onclick="switchMainTab('tab-tamper', this)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        Tamper Attack Lab
+      <button class="tab-button" onclick="switchConsoleTab('tab-tamper', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Tamper Audit Lab
       </button>
-      <button class="tab-trigger" onclick="switchMainTab('tab-ledger', this)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-          <polyline points="14 2 14 8 20 8"></polyline>
-          <line x1="16" y1="13" x2="8" y2="13"></line>
-          <line x1="16" y1="17" x2="8" y2="17"></line>
-        </svg>
+      <button class="tab-button" onclick="switchConsoleTab('tab-ledger', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
         On-Chain Ledger
       </button>
-      <button class="tab-trigger" onclick="switchMainTab('tab-arch', this)">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-          <polyline points="2 17 12 22 22 17"></polyline>
-          <polyline points="2 12 12 17 22 12"></polyline>
-        </svg>
-        Architecture & Smart Contract
+      <button class="tab-button" onclick="switchConsoleTab('tab-specs', this)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/></svg>
+        Architecture & Specs
       </button>
-    </div>
+    </nav>
 
     <!-- ============================================================= -->
-    <!-- TAB 1: PIPELINE EXECUTION -->
+    <!-- TAB 1: PIPELINE EXECUTION                                     -->
     <!-- ============================================================= -->
-    <div id="tab-pipeline" class="tab-pane active">
-      <div class="workspace-grid">
+    <div id="tab-pipeline" class="tab-view active">
+      <div class="dashboard-grid">
 
-        <!-- LEFT COLUMN: FACE HUD & CONTROLS -->
-        <div class="panel-card">
-          <div class="panel-header">
-            <div class="panel-title">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
-                <line x1="9" y1="9" x2="9.01" y2="9"></line>
-                <line x1="15" y1="9" x2="15.01" y2="9"></line>
-              </svg>
-              <span>STAGE 1: BIOMETRIC FACE EXTRACTION</span>
-            </div>
-            <span class="badge-task" id="activeModelLabel">YuNet + SFace 512-d</span>
+        <!-- Left: Input & Biometrics -->
+        <div class="console-panel">
+          <div class="panel-header-row">
+            <span class="panel-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+              Stage 1: Biometric Face Analysis
+            </span>
+            <span class="nav-tag" id="activeModelTag">YuNet + SFace</span>
           </div>
 
-          <!-- Face Canvas HUD -->
-          <div class="face-hud-box">
+          <!-- Viewport Canvas -->
+          <div class="biometric-viewport">
             <canvas id="faceCanvas"></canvas>
-            <div class="hud-scan-line" id="hudScanLine"></div>
-            <div class="hud-tags-row">
-              <span class="hud-pill" id="hudFaceStatus">FACE DETECTED [CONF: 0.984]</span>
-              <span class="hud-pill" id="hudLandmarkStatus">5-PT ALIGNED</span>
+            <div class="viewport-status-bar">
+              <span class="viewport-tag" id="canvasConfTag">CONFIDENCE: 0.984</span>
+              <span class="viewport-tag" id="canvasLandmarkTag">5-PT ALIGNED</span>
             </div>
           </div>
 
-          <!-- Parameters -->
-          <div class="controls-row">
-            <div class="control-box">
-              <label class="control-label">
+          <!-- Controls -->
+          <div class="form-group-row">
+            <div class="form-control-block">
+              <label class="control-title">
                 <span>Similarity Threshold</span>
-                <span id="threshDisplay" style="color: var(--gold-primary)">0.85 (85%)</span>
+                <span id="thresholdVal" style="color: var(--accent-yellow-text)">0.85 (85%)</span>
               </label>
-              <input type="range" class="control-input" id="thresholdSlider" min="0.50" max="0.95" step="0.05" value="0.85" oninput="document.getElementById('threshDisplay').innerText = `${this.value} (${Math.round(this.value*100)}%)`" />
+              <input type="range" class="ui-input" id="thresholdSlider" min="0.50" max="0.95" step="0.05" value="0.85" oninput="document.getElementById('thresholdVal').innerText = `${this.value} (${Math.round(this.value*100)}%)`" />
             </div>
 
-            <div class="control-box">
-              <label class="control-label">Search Provider</label>
-              <select class="control-input" id="searchProviderSelect">
+            <div class="form-control-block">
+              <label class="control-title">Search Provider</label>
+              <select class="ui-select" id="searchProvider">
                 <option value="serpapi">SerpApi (Google Lens)</option>
-                <option value="serper">Serper.dev Web Search</option>
-                <option value="direct" selected>Direct Candidate Corpus</option>
+                <option value="serper">Serper.dev Web Index</option>
+                <option value="direct" selected>Direct Local Corpus</option>
               </select>
             </div>
           </div>
 
-          <button class="btn-execute" id="executePipelineBtn" onclick="runHackerHousePipeline()">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="5 3 19 12 5 21 5 3"></polygon>
-            </svg>
-            <span id="btnExecuteText">EXECUTE HACKER HOUSE PIPELINE</span>
+          <button class="btn-action-primary" id="btnRunPipeline" onclick="runPipelineFlow()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span>Run Identification Pipeline</span>
           </button>
 
-          <!-- Custom Upload Fallback -->
-          <div style="margin-top: 14px; text-align: center;">
-            <input type="file" id="customFilePicker" accept="image/*" style="display:none" onchange="handleCustomUpload(event)" />
-            <button class="tech-pill" style="cursor: pointer;" onclick="document.getElementById('customFilePicker').click()">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
-              <span>Or upload custom photo from computer</span>
+          <!-- Upload Custom File Link -->
+          <div style="margin-top: 12px; text-align: center;">
+            <input type="file" id="localFilePicker" accept="image/*" style="display:none" onchange="onCustomFileUploaded(event)" />
+            <button class="nav-tag" style="cursor: pointer; background: transparent;" onclick="document.getElementById('localFilePicker').click()">
+              + Upload custom local portrait
             </button>
           </div>
         </div>
 
-        <!-- RIGHT COLUMN: 5-STAGE PIPELINE STEPPER & BLOCKCHAIN RECEIPT -->
-        <div class="panel-card">
-          <div class="panel-header">
-            <div class="panel-title">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-              </svg>
-              <span>STAGE 2-5: NOTARIZATION ENGINE</span>
-            </div>
-            <span class="badge-task" id="overallRunStatus">READY</span>
+        <!-- Right: Execution Stepper & Results -->
+        <div class="console-panel">
+          <div class="panel-header-row">
+            <span class="panel-heading">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+              Pipeline Telemetry & Notarization
+            </span>
+            <span class="nav-tag" id="telemetryStatusTag">Ready</span>
           </div>
 
-          <!-- 5-Stage Stepper -->
-          <div class="stepper">
-            <div class="step-item" id="p-step1">
-              <div class="step-num">1</div>
-              <div class="step-body">
-                <div class="step-name">Biometric Facial Alignment</div>
-                <div class="step-desc">OpenCV YuNet DNN extracts 5 fiducial landmarks</div>
+          <!-- Stepper -->
+          <div class="stepper-list">
+            <div class="stepper-row" id="st-step1">
+              <div class="step-index-badge">1</div>
+              <div class="step-text-wrap">
+                <div class="step-main-title">Biometric Facial Alignment</div>
+                <div class="step-sub-desc">Extracts 5 fiducials via YuNet DNN</div>
               </div>
-              <div class="step-status">PENDING</div>
+              <div class="step-state-badge">Pending</div>
             </div>
 
-            <div class="step-item" id="p-step2">
-              <div class="step-num">2</div>
-              <div class="step-body">
-                <div class="step-name">Reverse Image Web Discovery</div>
-                <div class="step-desc">SerpApi queries Google Lens reverse index</div>
+            <div class="stepper-row" id="st-step2">
+              <div class="step-index-badge">2</div>
+              <div class="step-text-wrap">
+                <div class="step-main-title">Reverse Search Candidate Retrieval</div>
+                <div class="step-sub-desc">Queries Google Lens candidate URLs</div>
               </div>
-              <div class="step-status">PENDING</div>
+              <div class="step-state-badge">Pending</div>
             </div>
 
-            <div class="step-item" id="p-step3">
-              <div class="step-num">3</div>
-              <div class="step-body">
-                <div class="step-name">Cosine Metric Ranking</div>
-                <div class="step-desc">Computes 128-d / 512-d unit vector similarity</div>
+            <div class="stepper-row" id="st-step3">
+              <div class="step-index-badge">3</div>
+              <div class="step-text-wrap">
+                <div class="step-main-title">Cosine Similarity Ranking</div>
+                <div class="step-sub-desc">Compares 512-d unit vectors against 85% gate</div>
               </div>
-              <div class="step-status">PENDING</div>
+              <div class="step-state-badge">Pending</div>
             </div>
 
-            <div class="step-item" id="p-step4">
-              <div class="step-num">4</div>
-              <div class="step-body">
-                <div class="step-name">Cryptographic Fingerprinting</div>
-                <div class="step-desc">Computes raw SHA-256 digest on matched bytes</div>
+            <div class="stepper-row" id="st-step4">
+              <div class="step-index-badge">4</div>
+              <div class="step-text-wrap">
+                <div class="step-main-title">Cryptographic Checksum</div>
+                <div class="step-sub-desc">RFC 8785 Canonical SHA-256 computation</div>
               </div>
-              <div class="step-status">PENDING</div>
+              <div class="step-state-badge">Pending</div>
             </div>
 
-            <div class="step-item" id="p-step5">
-              <div class="step-num">5</div>
-              <div class="step-body">
-                <div class="step-name">Blockchain On-Chain Notarization</div>
-                <div class="step-desc">Records immutable hash to Solana / Sepolia</div>
+            <div class="stepper-row" id="st-step5">
+              <div class="step-index-badge">5</div>
+              <div class="step-text-wrap">
+                <div class="step-main-title">On-Chain Notarization</div>
+                <div class="step-sub-desc">Signs and broadcasts immutable ledger proof</div>
               </div>
-              <div class="step-status">PENDING</div>
+              <div class="step-state-badge">Pending</div>
             </div>
           </div>
 
-          <!-- Verdict Banner -->
-          <div id="verdictBannerBox" style="display:none;"></div>
+          <!-- Verdict Outcome -->
+          <div id="pipelineVerdictBox" style="display:none;"></div>
 
-          <!-- Discovered Candidates Box -->
-          <div id="candidatesOutputBox" style="display:none;">
-            <div class="section-label">TOP WEB MATCHES:</div>
-            <div class="candidates-box" id="candidatesListContainer"></div>
+          <!-- Discovered Candidates -->
+          <div id="candidatesContainer" style="display:none;">
+            <div class="section-micro-label">Evaluated Candidates</div>
+            <div class="candidates-deck" id="candidatesDeck"></div>
           </div>
 
-          <!-- Blockchain On-Chain Receipt -->
-          <div class="receipt-panel" id="blockchainReceiptBox" style="display:none;">
-            <div style="font-size: 0.88rem; font-weight: 800; color: var(--gold-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
-                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
-              </svg>
-              ON-CHAIN PROOF OF AUTHENTICITY
+          <!-- On-Chain Proof Receipt -->
+          <div class="receipt-container" id="receiptContainer" style="display:none;">
+            <div class="receipt-header">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              On-Chain Transaction Receipt
             </div>
-            <div class="receipt-line">
-              <span class="receipt-key">Network:</span>
-              <span class="receipt-val highlight" id="rcNetwork">Solana Devnet (SPL Memo v2)</span>
+            <div class="receipt-data-row">
+              <span class="receipt-key">Target Network:</span>
+              <span class="receipt-val highlight" id="rcTargetNetwork">Solana Devnet (SPL Memo)</span>
             </div>
-            <div class="receipt-line">
-              <span class="receipt-key">Signature / Tx:</span>
-              <span class="receipt-val" id="rcTxSig">4uQ9...7bXk2</span>
+            <div class="receipt-data-row">
+              <span class="receipt-key">Tx Signature:</span>
+              <span class="receipt-val" id="rcTxSignature">4uQ9w...7bXk2</span>
             </div>
-            <div class="receipt-line">
+            <div class="receipt-data-row">
               <span class="receipt-key">SHA-256 Digest:</span>
-              <span class="receipt-val highlight" id="rcHash">a7f28c11e3895a98...</span>
+              <span class="receipt-val highlight" id="rcSha256">a7f28c11e3895a98...</span>
             </div>
-            <div class="receipt-line">
-              <span class="receipt-key">Similarity:</span>
-              <span class="receipt-val" id="rcScore" style="color: var(--emerald-bright)">94.8% Match</span>
+            <div class="receipt-data-row">
+              <span class="receipt-key">Cosine Score:</span>
+              <span class="receipt-val" id="rcSimilarityScore" style="color: var(--status-verified)">94.8% Match</span>
             </div>
-            <div class="receipt-line">
-              <span class="receipt-key">Explorer:</span>
+            <div class="receipt-data-row">
+              <span class="receipt-key">Block Explorer:</span>
               <span class="receipt-val">
-                <a href="#" target="_blank" id="rcExplorerLink" style="color: var(--gold-primary); text-decoration: none;">View On Solana Explorer ↗</a>
+                <a href="#" target="_blank" id="rcExplorerAnchor" style="color: var(--accent-yellow-text); text-decoration: none;">View On Solana Explorer ↗</a>
               </span>
             </div>
           </div>
@@ -1450,61 +1387,55 @@
     </div>
 
     <!-- ============================================================= -->
-    <!-- TAB 2: INTEGRITY VERIFICATION -->
+    <!-- TAB 2: INTEGRITY VERIFICATION                                 -->
     <!-- ============================================================= -->
-    <div id="tab-verify" class="tab-pane">
-      <div class="panel-card" style="max-width: 960px; margin: 0 auto;">
-        <div class="panel-header">
-          <div class="panel-title">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-              <polyline points="9 12 11 14 15 10"></polyline>
-            </svg>
-            <span>Cryptographic Re-Hashing & On-Chain Audit</span>
-          </div>
-          <span class="badge-task">SHA-256 // LEDGER AUDIT</span>
+    <div id="tab-verify" class="tab-view">
+      <div class="console-panel" style="max-width: 880px; margin: 0 auto;">
+        <div class="panel-header-row">
+          <span class="panel-heading">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+            Cryptographic Integrity & Tamper Audit
+          </span>
+          <span class="nav-tag">RFC 8785 Proof</span>
         </div>
 
-        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px;">
-          Re-hashes raw local file bytes in real-time using browser Web Crypto API and verifies the fingerprint against the immutable on-chain record.
+        <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 20px;">
+          Re-hashes local media bytes in real-time and queries the immutable on-chain record to mathematically prove authenticity.
         </p>
 
-        <div class="controls-row">
-          <div class="control-box">
-            <label class="control-label">Target File to Audit</label>
-            <select class="control-input" id="verifySelectChoice">
-              <option value="authentic">Authentic File (Keynote Speaker)</option>
-              <option value="tampered">Tampered File (1-Byte Metadata Altered)</option>
+        <div class="form-group-row">
+          <div class="form-control-block">
+            <label class="control-title">Select Local File</label>
+            <select class="ui-select" id="verifyFileSelect">
+              <option value="authentic">Authentic Original (input/person.jpg)</option>
+              <option value="tampered">Tampered Simulation (1-Byte Altered)</option>
             </select>
           </div>
-          <div class="control-box">
-            <label class="control-label">On-Chain Record ID</label>
-            <input type="number" class="control-input" id="verifyRecordId" value="1001" />
+          <div class="form-control-block">
+            <label class="control-title">On-Chain Record ID</label>
+            <input type="number" class="ui-input" id="verifyRecordIdInput" value="1001" />
           </div>
         </div>
 
-        <button class="btn-execute" onclick="runVerificationAudit()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <span>RE-HASH & VERIFY AGAINST BLOCKCHAIN</span>
+        <button class="btn-action-primary" onclick="runIntegrityAudit()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Re-Hash & Audit Against Blockchain</span>
         </button>
 
-        <div id="verifyOutcomeBox" style="display:none; margin-top: 20px;"></div>
+        <div id="verifyStatusBox" style="display:none;"></div>
 
-        <div class="receipt-panel" id="verifyCompareDetails" style="display:none;">
-          <div style="font-weight: 800; color: var(--gold-primary); margin-bottom: 10px;">FINGERPRINT AUDIT LOG</div>
-          <div class="receipt-line">
-            <span class="receipt-key">Computed Local Hash:</span>
-            <span class="receipt-val" id="auditLocalHash">--</span>
+        <div class="receipt-container" id="verifyHashDetails" style="display:none;">
+          <div class="receipt-header">Checksum Comparison Log</div>
+          <div class="receipt-data-row">
+            <span class="receipt-key">Computed Local SHA-256:</span>
+            <span class="receipt-val" id="auditLocalVal">--</span>
           </div>
-          <div class="receipt-line">
-            <span class="receipt-key">Blockchain Recorded Hash:</span>
-            <span class="receipt-val highlight" id="auditChainHash">--</span>
+          <div class="receipt-data-row">
+            <span class="receipt-key">Immutable On-Chain Hash:</span>
+            <span class="receipt-val highlight" id="auditChainVal">--</span>
           </div>
-          <div class="receipt-line">
-            <span class="receipt-key">Timestamp of Notarization:</span>
+          <div class="receipt-data-row">
+            <span class="receipt-key">Notarization Timestamp:</span>
             <span class="receipt-val">2026-09-04 22:15:30 UTC</span>
           </div>
         </div>
@@ -1512,112 +1443,101 @@
     </div>
 
     <!-- ============================================================= -->
-    <!-- TAB 3: TAMPER ATTACK LAB -->
+    <!-- TAB 3: TAMPER ATTACK LAB                                      -->
     <!-- ============================================================= -->
-    <div id="tab-tamper" class="tab-pane">
-      <div class="panel-card" style="max-width: 1050px; margin: 0 auto;">
-        <div class="panel-header">
-          <div class="panel-title">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-              <line x1="12" y1="9" x2="12" y2="13"></line>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            <span>Forensic Avalanche Effect Simulator</span>
-          </div>
-          <span class="badge-task" style="color: var(--alert-crimson); border-color: var(--alert-crimson);">TAMPER LAB</span>
+    <div id="tab-tamper" class="tab-view">
+      <div class="console-panel" style="max-width: 960px; margin: 0 auto;">
+        <div class="panel-header-row">
+          <span class="panel-heading">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Avalanche Effect Demonstration
+          </span>
+          <span class="nav-tag" style="color: var(--status-tampered)">Tamper Audit</span>
         </div>
 
-        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 18px;">
-          Demonstrates why blockchain notary makes media tamper-evident: modifying even a single imperceptible byte alters the SHA-256 fingerprint drastically.
+        <p style="color: var(--text-secondary); font-size: 0.85rem; line-height: 1.6; margin-bottom: 16px;">
+          Demonstrates how subtle changes break cryptographic integrity: modifying a single metadata byte alters the SHA-256 digest completely, triggering instant tamper detection.
         </p>
 
-        <div class="diff-grid">
-          <div class="diff-box">
-            <div class="diff-box-title" style="color: var(--gold-primary)">ORIGINAL AUTHENTIC MEDIA</div>
-            <div style="height: 180px; background: #000; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
-              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fed7aa'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%231e40af'/%3E%3C/svg%3E" style="max-height: 100%;" alt="Original" />
+        <div class="diff-two-col">
+          <div class="diff-panel">
+            <div class="diff-title" style="color: var(--status-verified)">AUTHENTIC LOCAL FILE</div>
+            <div style="height: 160px; background: #000; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 10px;">
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fed7aa'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%231e40af'/%3E%3C/svg%3E" style="max-height: 100%;" alt="Original" />
             </div>
-            <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 4px;">SHA-256 Digest:</div>
-            <div class="diff-code-view" id="origDiffHash" style="color: var(--emerald-bright)">
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px;">SHA-256 Digest:</div>
+            <div class="diff-box" id="origHashView" style="color: var(--status-verified)">
               a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f
             </div>
           </div>
 
-          <div class="diff-box">
-            <div class="diff-box-title" style="color: var(--alert-crimson)">ALTERED FORGERY / TAMPERED</div>
-            <div style="height: 180px; background: #000; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; position: relative;">
-              <img id="tamperCanvasPreview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fed7aa'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%231e40af'/%3E%3C/svg%3E" style="max-height: 100%; filter: contrast(1.05);" alt="Tampered" />
-              <div style="position: absolute; top: 10px; right: 10px; background: var(--alert-crimson); color: #fff; font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: 700;">
-                MODIFIED
-              </div>
+          <div class="diff-panel">
+            <div class="diff-title" style="color: var(--status-tampered)">ALTERED / TAMPERED FILE</div>
+            <div style="height: 160px; background: #000; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 10px; position: relative;">
+              <img id="tamperImgView" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fed7aa'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%231e40af'/%3E%3C/svg%3E" style="max-height: 100%; filter: contrast(1.05);" alt="Tampered" />
+              <span class="nav-tag" style="position: absolute; top: 8px; right: 8px; color: var(--status-tampered)">Modified</span>
             </div>
-            <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 4px;">Tampered SHA-256 Digest:</div>
-            <div class="diff-code-view" id="tamperDiffHash" style="color: var(--alert-crimson)">
+            <div style="font-size: 0.72rem; color: var(--text-muted); margin-bottom: 4px;">Mutated SHA-256 Digest:</div>
+            <div class="diff-box" id="tamperHashView" style="color: var(--status-tampered)">
               3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841
             </div>
           </div>
         </div>
 
-        <div style="display: flex; gap: 14px; margin-top: 20px;">
-          <button class="btn-execute" onclick="triggerTamperLabAction()" style="background: linear-gradient(135deg, #ef4444, #991b1b); color: #fff; box-shadow: 0 4px 20px var(--alert-glow);">
-            <span>⚡ INJECT 1-BYTE ATTACK & MUTATE HASH</span>
+        <div style="display: flex; gap: 12px; margin-top: 16px;">
+          <button class="btn-action-primary" onclick="injectByteTamper()" style="background: var(--status-tampered); color: #fff;">
+            <span>Inject 1-Byte Modification & Recalculate</span>
           </button>
-          <button class="tech-pill" onclick="restoreTamperLabAction()" style="cursor: pointer; padding: 12px 20px;">
-            <span>Reset to Authentic State</span>
+          <button class="btn-network-select" onclick="resetByteTamper()">
+            <span>Reset to Authentic</span>
           </button>
         </div>
       </div>
     </div>
 
     <!-- ============================================================= -->
-    <!-- TAB 4: ON-CHAIN LEDGER EXPLORER -->
+    <!-- TAB 4: ON-CHAIN LEDGER                                        -->
     <!-- ============================================================= -->
-    <div id="tab-ledger" class="tab-pane">
-      <div class="panel-card">
-        <div class="panel-header">
-          <div class="panel-title">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-            </svg>
-            <span>Immutable On-Chain Verification Ledger</span>
-          </div>
-          <button class="tech-pill" onclick="downloadLedgerJSON()" style="cursor: pointer;">
-            <span>Download Ledger JSON</span>
+    <div id="tab-ledger" class="tab-view">
+      <div class="console-panel">
+        <div class="panel-header-row">
+          <span class="panel-heading">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+            On-Chain Notarization Ledger
+          </span>
+          <button class="nav-tag" onclick="exportLedgerJSON()" style="cursor: pointer; background: transparent;">
+            Download JSON Ledger
           </button>
         </div>
 
         <div style="overflow-x: auto;">
-          <table class="ledger-table">
+          <table class="data-table">
             <thead>
               <tr>
-                <th>RECORD ID</th>
-                <th>SHA-256 DIGEST</th>
-                <th>SOURCE URL</th>
-                <th>TIMESTAMP</th>
-                <th>SUBMITTER</th>
-                <th>ACTION</th>
+                <th>Record ID</th>
+                <th>SHA-256 Digest</th>
+                <th>Discovered Source URL</th>
+                <th>Block Timestamp</th>
+                <th>Submitter</th>
+                <th>Verification</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td style="color: var(--gold-primary); font-weight: 800;">#1001</td>
+                <td style="color: var(--accent-yellow-text); font-weight: 700;">#1001</td>
                 <td>0xa7f28c11e3895a98d0f1...d1e43e2f</td>
-                <td style="color: var(--text-muted)">https://images.unsplash.com/photo-tech-speaker</td>
+                <td>https://images.unsplash.com/photo-tech-speaker</td>
                 <td>2026-09-04 22:15:30 UTC</td>
-                <td style="color: var(--emerald-bright)">0x92aF...471C</td>
-                <td><button class="badge-task" onclick="quickVerifyID(1001)" style="cursor: pointer;">Verify</button></td>
+                <td>0x92aF...471C</td>
+                <td><button class="nav-tag" onclick="quickVerifyRow(1001)" style="cursor: pointer;">Verify</button></td>
               </tr>
               <tr>
-                <td style="color: var(--gold-primary); font-weight: 800;">#1002</td>
+                <td style="color: var(--accent-yellow-text); font-weight: 700;">#1002</td>
                 <td>0xb893c12988cb62804c86...8e291244</td>
-                <td style="color: var(--text-muted)">https://wikimedia.org/wiki/File:Portrait_Case.jpg</td>
+                <td>https://wikimedia.org/wiki/File:Portrait_Case.jpg</td>
                 <td>2026-09-04 21:50:12 UTC</td>
-                <td style="color: var(--emerald-bright)">0x92aF...471C</td>
-                <td><button class="badge-task" onclick="quickVerifyID(1002)" style="cursor: pointer;">Verify</button></td>
+                <td>0x92aF...471C</td>
+                <td><button class="nav-tag" onclick="quickVerifyRow(1002)" style="cursor: pointer;">Verify</button></td>
               </tr>
             </tbody>
           </table>
@@ -1626,38 +1546,34 @@
     </div>
 
     <!-- ============================================================= -->
-    <!-- TAB 5: ARCHITECTURE & SPECS -->
+    <!-- TAB 5: ARCHITECTURE & SPECS                                   -->
     <!-- ============================================================= -->
-    <div id="tab-arch" class="tab-pane">
-      <div class="panel-card" style="max-width: 1000px; margin: 0 auto;">
-        <div class="panel-header">
-          <div class="panel-title">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
-              <polyline points="2 17 12 22 22 17"></polyline>
-              <polyline points="2 12 12 17 22 12"></polyline>
-            </svg>
-            <span>Architecture & Smart Contract Specifications</span>
-          </div>
-          <span class="badge-task">SOLIDITY ^0.8.20</span>
+    <div id="tab-specs" class="tab-view">
+      <div class="console-panel" style="max-width: 960px; margin: 0 auto;">
+        <div class="panel-header-row">
+          <span class="panel-heading">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/></svg>
+            System Architecture & Solidity Specifications
+          </span>
+          <span class="nav-tag">Solidity ^0.8.20</span>
         </div>
 
-        <div class="controls-row" style="margin-bottom: 20px;">
+        <div class="form-group-row" style="margin-bottom: 16px;">
           <div>
-            <h4 style="color: var(--gold-primary); margin-bottom: 8px;">Why bytes32 instead of string?</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
-              In Ethereum smart contract development, storing cryptographic hashes as <code>bytes32</code> consumes exactly 1 storage slot (32 bytes = 20,000 gas for cold write). In contrast, a 64-character hexadecimal <code>string</code> requires dynamic array encoding and consumes multiple storage words (~40,000+ gas). Storing as <code>bytes32</code> cuts on-chain gas costs by ~45%.
+            <h4 style="color: var(--accent-yellow-text); font-size: 0.85rem; margin-bottom: 6px;">Gas Optimization: bytes32 Storage</h4>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+              In Ethereum smart contract design, storing hashes as <code>bytes32</code> uses exactly 1 EVM word (32 bytes = 20,000 gas cold write). Dynamic <code>string</code> representations consume multiple words plus offset encoding (~40,000+ gas). Using <code>bytes32</code> cuts on-chain gas costs by over 45%.
             </p>
           </div>
           <div>
-            <h4 style="color: var(--emerald-bright); margin-bottom: 8px;">Off-Chain Biometric Pipeline</h4>
-            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
-              We deploy OpenCV DNN YuNet to isolate the primary subject and 5 fiducial landmarks. OpenCV SFace DNN aligns landmarks into a canonical pose and produces a 128-d/512-d unit hypersphere embedding. Cosine similarity matches candidates invariant to lighting and rotation.
+            <h4 style="color: var(--status-verified); font-size: 0.85rem; margin-bottom: 6px;">Biometric Metric Invariance</h4>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5;">
+              OpenCV YuNet extracts 5 fiducials (eyes, nose, mouth corners) to align the face to a canonical frame. SFace extracts a normalized 512-d feature vector on a unit hypersphere, ensuring Cosine Similarity is invariant to head pose and illumination.
             </p>
           </div>
         </div>
 
-        <div style="background: rgba(0, 0, 0, 0.65); border: 1px solid var(--border-green); padding: 16px; border-radius: 12px; font-family: var(--font-mono); font-size: 0.78rem; overflow-x: auto; color: #86efac;">
+        <div style="background: var(--bg-code); border: 1px solid var(--border-subtle); padding: 14px; border-radius: var(--radius-md); font-family: var(--font-mono); font-size: 0.74rem; overflow-x: auto; color: #a7f3d0;">
 <pre>// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
@@ -1697,97 +1613,94 @@ contract FaceVerification {
   </div>
 
   <script>
-    // Embedded SVG Data URLs for zero-latency cross-platform rendering
-    const SAMPLE_AVATARS = {
-      person: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3CradialGradient id='g1' cx='50%25' cy='40%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%231e3a8a'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23g1)'/%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fed7aa'/%3E%3Cpath d='M65 72 Q100 50 135 72 Q120 48 100 48 Q80 48 65 72' fill='%23451a03'/%3E%3Ccircle cx='85' cy='82' r='4' fill='%231e293b'/%3E%3Ccircle cx='115' cy='82' r='4' fill='%231e293b'/%3E%3Cpath d='M98 88 L102 96 L96 98' fill='none' stroke='%23ea580c' stroke-width='2'/%3E%3Cpath d='M88 108 Q100 118 112 108' fill='none' stroke='%23b91c1c' stroke-width='2.5'/%3E%3Crect x='76' y='76' width='18' height='12' rx='2' fill='none' stroke='%230284c7' stroke-width='2'/%3E%3Crect x='106' y='76' width='18' height='12' rx='2' fill='none' stroke='%230284c7' stroke-width='2'/%3E%3Cline x1='94' y1='82' x2='106' y2='82' stroke='%230284c7' stroke-width='2'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%231e40af'/%3E%3C/svg%3E",
-      tamper: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3CradialGradient id='g2' cx='50%25' cy='40%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%2310b981'/%3E%3Cstop offset='100%25' stop-color='%23064e3b'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23g2)'/%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fbcfe8'/%3E%3Ccircle cx='86' cy='82' r='4' fill='%231e293b'/%3E%3Ccircle cx='114' cy='82' r='4' fill='%231e293b'/%3E%3Cpath d='M90 106 Q100 120 110 106' fill='none' stroke='%23db2777' stroke-width='3'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%23f8fafc'/%3E%3C/svg%3E",
-      lookalike: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3CradialGradient id='g3' cx='50%25' cy='40%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23312e81'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23g3)'/%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fef08a'/%3E%3Cpath d='M65 70 Q100 45 135 70 Q120 40 100 40 Q80 40 65 70' fill='%231e1b4b'/%3E%3Ccircle cx='86' cy='82' r='4' fill='%231e293b'/%3E%3Ccircle cx='114' cy='82' r='4' fill='%231e293b'/%3E%3Cpath d='M75 100 Q100 135 125 100 Q100 120 75 100' fill='%231e1b4b'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%23334155'/%3E%3C/svg%3E",
-      noface: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%23f59e0b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23sky)'/%3E%3Cpath d='M0 140 L50 90 L100 140 L150 80 L200 150 L200 200 L0 200 Z' fill='%23166534'/%3E%3Ccircle cx='150' cy='50' r='18' fill='%23fef08a'/%3E%3C/svg%3E"
+    // Embedded Vector SVGs for offline cross-platform reliability
+    const ASSETS = {
+      person: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%2313271e'/%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fed7aa'/%3E%3Cpath d='M65 72 Q100 50 135 72 Q120 48 100 48 Q80 48 65 72' fill='%23451a03'/%3E%3Ccircle cx='85' cy='82' r='4' fill='%231e293b'/%3E%3Ccircle cx='115' cy='82' r='4' fill='%231e293b'/%3E%3Cpath d='M98 88 L102 96 L96 98' fill='none' stroke='%23ea580c' stroke-width='2'/%3E%3Cpath d='M88 108 Q100 118 112 108' fill='none' stroke='%23b91c1c' stroke-width='2.5'/%3E%3Crect x='76' y='76' width='18' height='12' rx='2' fill='none' stroke='%230284c7' stroke-width='2'/%3E%3Crect x='106' y='76' width='18' height='12' rx='2' fill='none' stroke='%230284c7' stroke-width='2'/%3E%3Cline x1='94' y1='82' x2='106' y2='82' stroke='%230284c7' stroke-width='2'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%231e40af'/%3E%3C/svg%3E",
+      tamper: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%2313271e'/%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fbcfe8'/%3E%3Ccircle cx='86' cy='82' r='4' fill='%231e293b'/%3E%3Ccircle cx='114' cy='82' r='4' fill='%231e293b'/%3E%3Cpath d='M90 106 Q100 120 110 106' fill='none' stroke='%23db2777' stroke-width='3'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%23f8fafc'/%3E%3C/svg%3E",
+      lookalike: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%2313271e'/%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fef08a'/%3E%3Cpath d='M65 70 Q100 45 135 70 Q120 40 100 40 Q80 40 65 70' fill='%231e1b4b'/%3E%3Ccircle cx='86' cy='82' r='4' fill='%231e293b'/%3E%3Ccircle cx='114' cy='82' r='4' fill='%231e293b'/%3E%3Cpath d='M75 100 Q100 135 125 100 Q100 120 75 100' fill='%231e1b4b'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%23334155'/%3E%3C/svg%3E",
+      noface: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160' viewBox='0 0 200 200'%3E%3Crect width='200' height='200' fill='%2313271e'/%3E%3Cpath d='M0 140 L50 90 L100 140 L150 80 L200 150 L200 200 L0 200 Z' fill='%23166534'/%3E%3Ccircle cx='150' cy='50' r='18' fill='%23fef08a'/%3E%3C/svg%3E"
     };
 
-    // State Variables
-    let currentPortraitKey = "person";
+    // State
+    let currentKey = "person";
     let activeScenario = "verified";
-    let activeChain = "solana";
-    let currentFileHash = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
+    let activeNetwork = "solana";
+    let currentHash = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
 
     window.addEventListener('DOMContentLoaded', () => {
-      document.getElementById('thumb-person').src = SAMPLE_AVATARS.person;
-      document.getElementById('thumb-tamper').src = SAMPLE_AVATARS.tamper;
-      document.getElementById('thumb-lookalike').src = SAMPLE_AVATARS.lookalike;
-      document.getElementById('thumb-noface').src = SAMPLE_AVATARS.noface;
+      document.getElementById('img-person').src = ASSETS.person;
+      document.getElementById('img-tamper').src = ASSETS.tamper;
+      document.getElementById('img-lookalike').src = ASSETS.lookalike;
+      document.getElementById('img-noface').src = ASSETS.noface;
 
-      initFaceCanvas();
-      loadPortrait('person', 'Tech Executive (Authentic)', 'Keynote Speaker at Tech Summit', document.getElementById('port-person'));
+      initCanvas();
+      loadDataset('person', 'Tech Executive', 'input/person.jpg', document.getElementById('data-person'));
     });
 
-    function switchMainTab(tabId, btn) {
-      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-      document.querySelectorAll('.tab-trigger').forEach(t => t.classList.remove('active'));
+    function switchConsoleTab(tabId, btn) {
+      document.querySelectorAll('.tab-view').forEach(v => v.classList.remove('active'));
+      document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
       document.getElementById(tabId).classList.add('active');
       btn.classList.add('active');
     }
 
-    function triggerHype() {
-      alert("🔥 HACKER HOUSE GOA 2026 🔥\n\nTask 3: Off-Chain Biometric Facial Recognition + Blockchain On-Chain Verification Engine.\nReady to inspect!");
-    }
-
-    function toggleChainMode() {
-      const label = document.getElementById('chainLabel');
-      if (activeChain === 'solana') {
-        activeChain = 'sepolia';
-        label.innerText = 'ETHEREUM SEPOLIA ↗';
+    function toggleNetworkSelection() {
+      const label = document.getElementById('activeNetworkLabel');
+      if (activeNetwork === 'solana') {
+        activeNetwork = 'sepolia';
+        label.innerText = "Ethereum Sepolia (Solidity)";
       } else {
-        activeChain = 'solana';
-        label.innerText = 'SOLANA DEVNET ↗';
+        activeNetwork = 'solana';
+        label.innerText = "Solana Devnet (SPL Memo)";
       }
     }
 
-    function setExecutionMode(mode) {
-      document.getElementById('liveApiBtn').classList.toggle('active', mode === 'live');
-      document.getElementById('demoSandboxBtn').classList.toggle('active', mode === 'sandbox');
+    function selectExecutionMode(mode) {
+      document.getElementById('segSandboxBtn').classList.toggle('active', mode === 'sandbox');
+      document.getElementById('segLiveBtn').classList.toggle('active', mode === 'live');
+      document.getElementById('currentExecModeTag').innerText = mode === 'sandbox' ? "Sandbox Simulator" : "Live Python API";
       if (mode === 'live') {
-        alert("📡 Live API Mode: Connects to local Python pipeline (python app.py / RPC). Ensure Python backend is active.");
+        alert("Live Python API Selected: Ensure `python app.py` or backend server is listening on port 8080.");
       }
     }
 
-    function selectScenario(scen) {
+    function applyTestScenario(scen) {
       activeScenario = scen;
-      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+      document.querySelectorAll('.scenario-tile').forEach(t => t.classList.remove('active'));
       document.getElementById(`scen-${scen}`).classList.add('active');
 
       if (scen === 'verified') {
-        loadPortrait('person', 'Tech Executive (Authentic)', 'Keynote Speaker at Tech Summit', document.getElementById('port-person'));
+        loadDataset('person', 'Tech Executive', 'input/person.jpg', document.getElementById('data-person'));
       } else if (scen === 'tampered') {
-        loadPortrait('tamper', 'Tamper Attack Case', 'Altered Metadata Simulation', document.getElementById('port-tamper'));
+        loadDataset('tamper', 'Tampered Attack Case', 'input/candidate_same.jpg', document.getElementById('data-tamper'));
       } else if (scen === 'lowmatch') {
-        loadPortrait('lookalike', 'Lookalike (Low Similarity)', 'Distant Resemblance', document.getElementById('port-lookalike'));
+        loadDataset('lookalike', 'Lookalike Subject', 'input/candidate_different.jpg', document.getElementById('data-lookalike'));
       } else if (scen === 'noface') {
-        loadPortrait('noface', 'Landscape (No Face)', 'Scenery / Abstract', document.getElementById('port-noface'));
+        loadDataset('noface', 'Landscape (No Face)', 'input/no_face.jpg', document.getElementById('data-noface'));
       }
     }
 
-    function loadPortrait(key, title, subtitle, el) {
-      currentPortraitKey = key;
-      document.querySelectorAll('.portrait-card').forEach(p => p.classList.remove('active'));
+    function loadDataset(key, name, path, el) {
+      currentKey = key;
+      document.querySelectorAll('.dataset-tile').forEach(t => t.classList.remove('active'));
       if (el) el.classList.add('active');
 
       const img = new Image();
-      img.src = SAMPLE_AVATARS[key];
+      img.src = ASSETS[key];
       img.onload = () => {
-        renderFaceHUD(img, key);
+        renderCanvasInspection(img, key);
       };
 
       if (key === 'tamper') {
-        currentFileHash = "b893c12988cb62804c86125026b91129b860269389f417a80b8e291244e3b1c9";
+        currentHash = "b893c12988cb62804c86125026b91129b860269389f417a80b8e291244e3b1c9";
       } else if (key === 'lookalike') {
-        currentFileHash = "5a41df90e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
+        currentHash = "5a41df90e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
       } else {
-        currentFileHash = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
+        currentHash = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
       }
     }
 
-    function handleCustomUpload(e) {
+    function onCustomFileUploaded(e) {
       const file = e.target.files[0];
       if (!file) return;
 
@@ -1796,58 +1709,58 @@ contract FaceVerification {
         const img = new Image();
         img.src = evt.target.result;
         img.onload = function() {
-          renderFaceHUD(img, file.name);
-          computeRealFileHash(file);
+          renderCanvasInspection(img, file.name);
+          calculateLocalSHA256(file);
         };
       };
       reader.readAsDataURL(file);
     }
 
-    async function computeRealFileHash(file) {
+    async function calculateLocalSHA256(file) {
       const buf = await file.arrayBuffer();
       const digest = await crypto.subtle.digest('SHA-256', buf);
-      currentFileHash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+      currentHash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    // Canvas Initializer
+    // Canvas Biometrics
     const canvas = document.getElementById('faceCanvas');
     const ctx = canvas.getContext('2d');
 
-    function initFaceCanvas() {
+    function initCanvas() {
       canvas.width = 640;
-      canvas.height = 400;
-      ctx.fillStyle = "#020b06";
+      canvas.height = 360;
+      ctx.fillStyle = "#070e0a";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
     }
 
-    function renderFaceHUD(img, key) {
+    function renderCanvasInspection(img, key) {
       canvas.width = 640;
-      canvas.height = 400;
-      ctx.fillStyle = "#020b06";
+      canvas.height = 360;
+      ctx.fillStyle = "#070e0a";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(img, 120, 20, 400, 360);
+      ctx.drawImage(img, 130, 20, 380, 320);
 
       if (key === "noface") {
-        document.getElementById('hudFaceStatus').innerText = "NO FACE DETECTED";
-        document.getElementById('hudFaceStatus').style.color = "var(--alert-crimson)";
-        document.getElementById('hudLandmarkStatus').innerText = "HALTED: 0 FACES";
+        document.getElementById('canvasConfTag').innerText = "FACE: NONE";
+        document.getElementById('canvasConfTag').style.color = "var(--status-tampered)";
+        document.getElementById('canvasLandmarkTag').innerText = "0 FACES DETECTED";
         return;
       }
 
-      document.getElementById('hudFaceStatus').innerText = "FACE DETECTED [CONF: 0.984]";
-      document.getElementById('hudFaceStatus').style.color = "var(--gold-primary)";
-      document.getElementById('hudLandmarkStatus').innerText = "5-PT ALIGNED";
+      document.getElementById('canvasConfTag').innerText = "CONFIDENCE: 0.984";
+      document.getElementById('canvasConfTag').style.color = "var(--status-verified)";
+      document.getElementById('canvasLandmarkTag').innerText = "5-PT ALIGNED";
 
-      // Bounding Box
-      const x = 200, y = 80, w = 240, h = 240;
+      // Precise Restrained Bounding Box
+      const x = 210, y = 70, w = 220, h = 220;
 
-      ctx.strokeStyle = "#ffdf00";
-      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = "rgba(250, 204, 21, 0.9)";
+      ctx.lineWidth = 1.5;
       ctx.strokeRect(x, y, w, h);
 
-      // Gold Corner Brackets
-      const len = 18;
-      ctx.lineWidth = 4;
+      // Corner ticks
+      const len = 14;
+      ctx.lineWidth = 2.5;
       ctx.strokeStyle = "#ffffff";
       // Top Left
       ctx.beginPath(); ctx.moveTo(x, y + len); ctx.lineTo(x, y); ctx.lineTo(x + len, y); ctx.stroke();
@@ -1858,8 +1771,8 @@ contract FaceVerification {
       // Bottom Right
       ctx.beginPath(); ctx.moveTo(x + w - len, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - len); ctx.stroke();
 
-      // 5 Landmarks
-      const points = [
+      // 5 Crosshair Landmarks
+      const pts = [
         { x: x + w * 0.35, y: y + h * 0.38 },
         { x: x + w * 0.65, y: y + h * 0.38 },
         { x: x + w * 0.50, y: y + h * 0.54 },
@@ -1867,293 +1780,277 @@ contract FaceVerification {
         { x: x + w * 0.62, y: y + h * 0.72 }
       ];
 
-      points.forEach(pt => {
-        ctx.strokeStyle = "#ff1b7a";
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2);
-        ctx.stroke();
-
-        ctx.fillStyle = "#ffdf00";
-        ctx.beginPath();
-        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
-        ctx.fill();
+      pts.forEach(pt => {
+        ctx.strokeStyle = "#facc15";
+        ctx.lineWidth = 1;
+        // Crosshair
+        ctx.beginPath(); ctx.moveTo(pt.x - 4, pt.y); ctx.lineTo(pt.x + 4, pt.y); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(pt.x, pt.y - 4); ctx.lineTo(pt.x, pt.y + 4); ctx.stroke();
       });
 
-      // Label
-      ctx.fillStyle = "rgba(2, 10, 6, 0.85)";
-      ctx.fillRect(x, y - 22, 175, 20);
-      ctx.fillStyle = "#ffdf00";
-      ctx.font = "11px 'Space Grotesk'";
-      ctx.fillText("YuNet DNN • 512-d Feature", x + 6, y - 8);
+      // Label Tag
+      ctx.fillStyle = "rgba(7, 14, 10, 0.85)";
+      ctx.fillRect(x, y - 20, 160, 18);
+      ctx.fillStyle = "#facc15";
+      ctx.font = "11px 'JetBrains Mono'";
+      ctx.fillText("YuNet DNN: 512-d Vector", x + 6, y - 6);
     }
 
     // 5-STAGE PIPELINE RUNNER
-    async function runHackerHousePipeline() {
-      const btn = document.getElementById('executePipelineBtn');
-      const scanLine = document.getElementById('hudScanLine');
-      const overall = document.getElementById('overallRunStatus');
-      const verdictBox = document.getElementById('verdictBannerBox');
-      const candBox = document.getElementById('candidatesOutputBox');
-      const receiptBox = document.getElementById('blockchainReceiptBox');
+    async function runPipelineFlow() {
+      const btn = document.getElementById('btnRunPipeline');
+      const statusTag = document.getElementById('telemetryStatusTag');
+      const verdictBox = document.getElementById('pipelineVerdictBox');
+      const candBox = document.getElementById('candidatesContainer');
+      const rcBox = document.getElementById('receiptContainer');
 
       btn.disabled = true;
-      scanLine.style.display = "block";
-      overall.innerText = "RUNNING...";
-      overall.style.color = "var(--gold-primary)";
+      statusTag.innerText = "Running...";
+      statusTag.style.color = "var(--accent-yellow-text)";
       verdictBox.style.display = "none";
       candBox.style.display = "none";
-      receiptBox.style.display = "none";
+      rcBox.style.display = "none";
 
       for (let i = 1; i <= 5; i++) {
-        const item = document.getElementById(`p-step${i}`);
-        item.className = "step-item";
-        item.querySelector('.step-status').innerText = "PENDING";
+        const row = document.getElementById(`st-step${i}`);
+        row.className = "stepper-row";
+        row.querySelector('.step-state-badge').innerText = "Pending";
       }
 
-      // Check for No-Face scenario
-      if (currentPortraitKey === "noface" || activeScenario === "noface") {
-        await activateStep(1, "DETECTING", 500);
-        failStep(1, "ERROR: 0 Faces Detected");
-        overall.innerText = "HALTED (NO FACE)";
-        overall.style.color = "var(--alert-crimson)";
+      // Check for No Face
+      if (currentKey === "noface" || activeScenario === "noface") {
+        await stepProgress(1, "Detecting...", 400);
+        stepFail(1, "Error: 0 Faces Detected");
+        statusTag.innerText = "Halted";
+        statusTag.style.color = "var(--status-tampered)";
         btn.disabled = false;
-        scanLine.style.display = "none";
 
+        verdictBox.className = "status-verdict-box tampered";
         verdictBox.innerHTML = `
-          <div class="verdict-banner verdict-fail">
-            <h3>❌ PIPELINE HALTED AT STAGE 1</h3>
-            <p>YuNet Face Detector found zero human faces. Reverse search was not invoked.</p>
-          </div>
+          <h4>Stage 1 Halted: No Face Detected</h4>
+          <p>YuNet detector found zero human faces. Reverse search and on-chain notarization were not invoked.</p>
         `;
         verdictBox.style.display = "block";
         return;
       }
 
       // Stage 1: Face Alignment
-      await activateStep(1, "EXTRACTING", 400);
-      completeStep(1, "ALIGNED (5 Fiducials)");
+      await stepProgress(1, "Extracting...", 350);
+      stepDone(1, "Aligned (5 Fiducials)");
 
-      // Stage 2: Reverse Image Search
-      await activateStep(2, "SEARCHING GOOGLE LENS", 700);
-      completeStep(2, "DISCOVERED: 3 Candidates");
+      // Stage 2: Reverse Search
+      await stepProgress(2, "Querying Google Lens...", 600);
+      stepDone(2, "3 Candidates Discovered");
 
-      // Stage 3: Cosine Metric Ranking
-      await activateStep(3, "COMPARING 512-D VECTORS", 500);
+      // Stage 3: Cosine Similarity
+      await stepProgress(3, "Evaluating Vectors...", 400);
       
-      let isTamper = (activeScenario === "tampered");
-      let isLow = (activeScenario === "lowmatch");
-      let scoreText = isLow ? "68.2% (BELOW 85% THRESHOLD)" : (isTamper ? "94.8% (FILE ALTERED)" : "94.8% (AUTHENTIC MATCH)");
-      completeStep(3, scoreText);
+      const isTamper = (activeScenario === "tampered");
+      const isLow = (activeScenario === "lowmatch");
+      const scoreLabel = isLow ? "68.2% (Below Gate)" : (isTamper ? "94.8% (Altered)" : "94.8% (Verified)");
+      stepDone(3, scoreLabel);
 
-      // Populate Candidate List
-      renderCandidates(isLow);
+      // Render candidates
+      renderCandidateList(isLow);
       candBox.style.display = "block";
 
       if (isLow) {
-        failStep(4, "SKIPPED: Low Similarity");
-        failStep(5, "SKIPPED: No Match Above Threshold");
-        overall.innerText = "REJECTED (BELOW THRESHOLD)";
-        overall.style.color = "var(--amber-warn)";
+        stepFail(4, "Skipped");
+        stepFail(5, "Skipped (Below Threshold)");
+        statusTag.innerText = "Rejected";
+        statusTag.style.color = "var(--status-lowmatch)";
         btn.disabled = false;
-        scanLine.style.display = "none";
 
+        verdictBox.className = "status-verdict-box";
+        verdictBox.style.background = "var(--status-lowmatch-bg)";
+        verdictBox.style.borderColor = "var(--status-lowmatch-border)";
         verdictBox.innerHTML = `
-          <div class="verdict-banner" style="background: rgba(245, 158, 11, 0.12); border: 2px solid var(--amber-warn);">
-            <h3 style="color: var(--amber-warn);">⚠️ LOW SIMILARITY MATCH</h3>
-            <p>Candidate highest cosine similarity is 68.2%, below the required 85% threshold. Not notarized.</p>
-          </div>
+          <h4 style="color: var(--status-lowmatch)">Low Similarity: Verification Rejected</h4>
+          <p>The candidate portrait's cosine similarity of 68.2% is below the required 85.0% threshold. Not notarized.</p>
         `;
         verdictBox.style.display = "block";
         return;
       }
 
       // Stage 4: Cryptographic Hashing
-      await activateStep(4, "COMPUTING SHA-256", 400);
-      completeStep(4, `HASH: ${currentFileHash.substring(0, 16)}...`);
+      await stepProgress(4, "Computing SHA-256...", 300);
+      stepDone(4, `SHA-256: ${currentHash.substring(0, 16)}...`);
 
       // Stage 5: Blockchain Notarization
-      const chainName = activeChain === 'solana' ? 'Solana Devnet (SPL Memo v2)' : 'Ethereum Sepolia (Contract)';
-      await activateStep(5, `MINTING ON ${chainName.toUpperCase()}`, 800);
-      completeStep(5, "ON-CHAIN CONFIRMED");
+      const netLabel = activeNetwork === 'solana' ? 'Solana Devnet (SPL Memo)' : 'Ethereum Sepolia (Solidity)';
+      await stepProgress(5, `Notarizing on ${netLabel}...`, 700);
+      stepDone(5, "Confirmed On-Chain");
 
       // Populate Receipt
-      const mockSig = activeChain === 'solana' 
+      const txSig = activeNetwork === 'solana' 
         ? "4uQ9wF3x7bXk2mKp9P4rY8zQ1vA5cB6dE7fG8hJ9kL0" 
         : "0x7e8b91a0c4f8d23e57b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3";
 
-      document.getElementById('rcNetwork').innerText = chainName;
-      document.getElementById('rcTxSig').innerText = mockSig;
-      document.getElementById('rcHash').innerText = isTamper 
+      document.getElementById('rcTargetNetwork').innerText = netLabel;
+      document.getElementById('rcTxSignature').innerText = txSig;
+      document.getElementById('rcSha256').innerText = isTamper 
         ? "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841 (Tampered)" 
-        : currentFileHash;
-      document.getElementById('rcScore').innerText = "94.8% Match";
+        : currentHash;
+      document.getElementById('rcSimilarityScore').innerText = "94.8% Match";
       
-      const explorerUrl = activeChain === 'solana'
-        ? `https://explorer.solana.com/tx/${mockSig}?cluster=devnet`
-        : `https://sepolia.etherscan.io/tx/${mockSig}`;
-      document.getElementById('rcExplorerLink').href = explorerUrl;
-      document.getElementById('rcExplorerLink').innerText = activeChain === 'solana' ? "View on Solana Explorer ↗" : "View on Sepolia Etherscan ↗";
+      const explorer = activeNetwork === 'solana'
+        ? `https://explorer.solana.com/tx/${txSig}?cluster=devnet`
+        : `https://sepolia.etherscan.io/tx/${txSig}`;
+      document.getElementById('rcExplorerAnchor').href = explorer;
+      document.getElementById('rcExplorerAnchor').innerText = activeNetwork === 'solana' ? "View on Solana Explorer ↗" : "View on Sepolia Etherscan ↗";
 
-      receiptBox.style.display = "block";
+      rcBox.style.display = "block";
 
-      // Final Verdict
       if (isTamper) {
-        overall.innerText = "TAMPER DETECTED";
-        overall.style.color = "var(--pink-goa)";
+        statusTag.innerText = "Tamper Detected";
+        statusTag.style.color = "var(--status-tampered)";
+        verdictBox.className = "status-verdict-box tampered";
         verdictBox.innerHTML = `
-          <div class="verdict-banner verdict-fail">
-            <h3>❌ AUDIT X: CRYPTOGRAPHIC TAMPER DETECTED</h3>
-            <p>The image byte contents were altered post-notarization. Checksum does not match on-chain ledger proof!</p>
-          </div>
+          <h4>Audit X: Cryptographic Tamper Detected</h4>
+          <p>Local media bytes differ from the on-chain notarized hash! Integrity checksum mismatch detected.</p>
         `;
       } else {
-        overall.innerText = "VERIFIED & NOTARIZED";
-        overall.style.color = "var(--emerald-bright)";
+        statusTag.innerText = "Notarized & Verified";
+        statusTag.style.color = "var(--status-verified)";
+        verdictBox.className = "status-verdict-box verified";
         verdictBox.innerHTML = `
-          <div class="verdict-banner verdict-pass">
-            <h3>✅ PROOF VERIFIED ON ${activeChain === 'solana' ? 'SOLANA DEVNET' : 'ETHEREUM SEPOLIA'}</h3>
-            <p>100% Cryptographic Match! The candidate image is proven unaltered and recorded permanently on-chain.</p>
-          </div>
+          <h4>On-Chain Verification Passed</h4>
+          <p>100% Cryptographic Match! The portrait has been authenticated and registered to the decentralized ledger.</p>
         `;
       }
       verdictBox.style.display = "block";
 
-      scanLine.style.display = "none";
       btn.disabled = false;
     }
 
-    async function activateStep(num, statusText, delayMs) {
-      const item = document.getElementById(`p-step${num}`);
-      item.className = "step-item active";
-      item.querySelector('.step-status').innerText = statusText;
-      await new Promise(res => setTimeout(res, delayMs));
+    async function stepProgress(idx, text, ms) {
+      const row = document.getElementById(`st-step${idx}`);
+      row.className = "stepper-row active";
+      row.querySelector('.step-state-badge').innerText = text;
+      await new Promise(r => setTimeout(r, ms));
     }
 
-    function completeStep(num, statusText) {
-      const item = document.getElementById(`p-step${num}`);
-      item.className = "step-item completed";
-      item.querySelector('.step-status').innerText = statusText;
+    function stepDone(idx, text) {
+      const row = document.getElementById(`st-step${idx}`);
+      row.className = "stepper-row completed";
+      row.querySelector('.step-state-badge').innerText = text;
     }
 
-    function failStep(num, statusText) {
-      const item = document.getElementById(`p-step${num}`);
-      item.className = "step-item";
-      item.style.borderColor = "var(--alert-crimson)";
-      item.querySelector('.step-status').innerText = statusText;
-      item.querySelector('.step-status').style.color = "var(--alert-crimson)";
+    function stepFail(idx, text) {
+      const row = document.getElementById(`st-step${idx}`);
+      row.className = "stepper-row";
+      row.style.borderColor = "var(--status-tampered-border)";
+      row.querySelector('.step-state-badge').innerText = text;
+      row.querySelector('.step-state-badge').style.color = "var(--status-tampered)";
     }
 
-    function renderCandidates(isLow) {
-      const container = document.getElementById('candidatesListContainer');
+    function renderCandidateList(isLow) {
+      const deck = document.getElementById('candidatesDeck');
       if (isLow) {
-        container.innerHTML = `
-          <div class="candidate-row">
-            <img src="${SAMPLE_AVATARS.lookalike}" class="candidate-thumb" alt="Candidate" />
-            <div class="candidate-info">
-              <div class="candidate-title">Discovered Lookalike Portrait (Web Article)</div>
-              <div class="candidate-url">https://wikimedia.org/wiki/File:Portrait_Distant_Match.jpg</div>
-              <div class="sim-bar-container">
-                <div class="sim-track">
-                  <div class="sim-level" style="width: 68.2%; background: var(--amber-warn);"></div>
+        deck.innerHTML = `
+          <div class="candidate-entry">
+            <img src="${ASSETS.lookalike}" class="candidate-avatar" alt="Lookalike" />
+            <div class="candidate-info-box">
+              <div class="candidate-label">Lookalike Match (Web Article)</div>
+              <div class="candidate-link">https://wikimedia.org/wiki/File:Portrait_Distant.jpg</div>
+              <div class="metric-bar-group">
+                <div class="metric-track">
+                  <div class="metric-fill" style="width: 68.2%; background: var(--status-lowmatch);"></div>
                 </div>
-                <div class="sim-val" style="color: var(--amber-warn);">68.2%</div>
+                <div class="metric-score-label" style="color: var(--status-lowmatch);">68.2%</div>
               </div>
             </div>
-            <span class="badge-task" style="color: var(--amber-warn); border-color: var(--amber-warn);">LOW MATCH</span>
+            <span class="nav-tag" style="color: var(--status-lowmatch)">Low Match</span>
           </div>
         `;
       } else {
-        container.innerHTML = `
-          <div class="candidate-row winner">
-            <img src="${SAMPLE_AVATARS.tamper}" class="candidate-thumb" alt="Candidate 1" />
-            <div class="candidate-info">
-              <div class="candidate-title">Speaker Profile Header (Tech Summit CDN)</div>
-              <div class="candidate-url">https://images.unsplash.com/photo-executive-summit-hq</div>
-              <div class="sim-bar-container">
-                <div class="sim-track">
-                  <div class="sim-level" style="width: 94.8%; background: var(--emerald-bright);"></div>
+        deck.innerHTML = `
+          <div class="candidate-entry best">
+            <img src="${ASSETS.tamper}" class="candidate-avatar" alt="Matched" />
+            <div class="candidate-info-box">
+              <div class="candidate-label">Speaker Profile Header (Summit CDN)</div>
+              <div class="candidate-link">https://images.unsplash.com/photo-tech-speaker</div>
+              <div class="metric-bar-group">
+                <div class="metric-track">
+                  <div class="metric-fill" style="width: 94.8%;"></div>
                 </div>
-                <div class="sim-val" style="color: var(--emerald-bright);">94.8%</div>
+                <div class="metric-score-label">94.8%</div>
               </div>
             </div>
-            <span class="badge-task" style="color: var(--emerald-bright); border-color: var(--emerald-bright);">BEST MATCH</span>
+            <span class="nav-tag" style="color: var(--status-verified)">Verified</span>
           </div>
-
-          <div class="candidate-row" style="opacity: 0.6;">
-            <img src="${SAMPLE_AVATARS.lookalike}" class="candidate-thumb" alt="Candidate 2" />
-            <div class="candidate-info">
-              <div class="candidate-title">Conference Attendee Photo</div>
-              <div class="candidate-url">https://wikimedia.org/wiki/File:Alternate_Subject.jpg</div>
-              <div class="sim-bar-container">
-                <div class="sim-track">
-                  <div class="sim-level" style="width: 42.1%; background: var(--text-subtle);"></div>
+          <div class="candidate-entry" style="opacity: 0.5;">
+            <img src="${ASSETS.lookalike}" class="candidate-avatar" alt="Candidate 2" />
+            <div class="candidate-info-box">
+              <div class="candidate-label">Conference Attendee Photo</div>
+              <div class="candidate-link">https://wikimedia.org/wiki/File:Attendee_Photo.jpg</div>
+              <div class="metric-bar-group">
+                <div class="metric-track">
+                  <div class="metric-fill" style="width: 42.1%; background: var(--text-muted);"></div>
                 </div>
-                <div class="sim-val" style="color: var(--text-subtle);">42.1%</div>
+                <div class="metric-score-label" style="color: var(--text-muted);">42.1%</div>
               </div>
             </div>
-            <span class="badge-task">REJECTED</span>
+            <span class="nav-tag">Rejected</span>
           </div>
         `;
       }
     }
 
-    // Tab 2: Integrity Verification Logic
-    function runVerificationAudit() {
-      const mode = document.getElementById('verifySelectChoice').value;
-      const recId = document.getElementById('verifyRecordId').value || "1001";
-      const outcomeBox = document.getElementById('verifyOutcomeBox');
-      const detailsBox = document.getElementById('verifyCompareDetails');
+    // Tab 2: Integrity Verification
+    function runIntegrityAudit() {
+      const mode = document.getElementById('verifyFileSelect').value;
+      const recId = document.getElementById('verifyRecordIdInput').value || "1001";
+      const statusBox = document.getElementById('verifyStatusBox');
+      const details = document.getElementById('verifyHashDetails');
 
-      outcomeBox.style.display = "block";
-      detailsBox.style.display = "block";
+      statusBox.style.display = "block";
+      details.style.display = "block";
 
-      const onChainHash = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
-      let localHash = "";
+      const onChain = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
+      let local = "";
 
       if (mode === 'tampered') {
-        localHash = "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841";
-        outcomeBox.innerHTML = `
-          <div class="verdict-banner verdict-fail">
-            <h3>❌ AUDIT X: CRYPTOGRAPHIC TAMPER DETECTED</h3>
-            <p>Hash mismatch! Local file checksum differs from the immutable on-chain record #${recId}.</p>
-          </div>
+        local = "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841";
+        statusBox.className = "status-verdict-box tampered";
+        statusBox.innerHTML = `
+          <h4>Audit X: Cryptographic Tamper Detected</h4>
+          <p>Local file checksum does NOT match the immutable on-chain record #${recId}.</p>
         `;
       } else {
-        localHash = onChainHash;
-        outcomeBox.innerHTML = `
-          <div class="verdict-banner verdict-pass">
-            <h3>✅ VERIFICATION PASSED (CONTENT UNTAMPERED)</h3>
-            <p>100% Cryptographic Match! Every single byte is identical to on-chain record #${recId}.</p>
-          </div>
+        local = onChain;
+        statusBox.className = "status-verdict-box verified";
+        statusBox.innerHTML = `
+          <h4>Verification Passed: Content Authentic</h4>
+          <p>Every raw byte matches on-chain record #${recId}. Integrity proven mathematically.</p>
         `;
       }
 
-      document.getElementById('auditLocalHash').innerText = localHash;
-      document.getElementById('auditChainHash').innerText = onChainHash;
+      document.getElementById('auditLocalVal').innerText = local;
+      document.getElementById('auditChainVal').innerText = onChain;
     }
 
-    // Tab 3: Tamper Lab Actions
-    function triggerTamperLabAction() {
-      document.getElementById('tamperDiffHash').innerText = "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841";
-      document.getElementById('tamperCanvasPreview').style.filter = "contrast(1.1) hue-rotate(15deg)";
-      alert("⚠️ 1-Byte Attack Injected!\n\nA single metadata byte was altered. Due to the Avalanche Effect, the entire SHA-256 digest completely mutated!");
+    // Tab 3: Tamper Lab
+    function injectByteTamper() {
+      document.getElementById('tamperHashView').innerText = "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841";
+      document.getElementById('tamperImgView').style.filter = "contrast(1.1) hue-rotate(15deg)";
+      alert("1-Byte Header Tamper Injected. Due to the Avalanche Effect, the entire SHA-256 digest completely mutated!");
     }
 
-    function restoreTamperLabAction() {
-      document.getElementById('tamperDiffHash').innerText = document.getElementById('origDiffHash').innerText;
-      document.getElementById('tamperCanvasPreview').style.filter = "none";
-      alert("✅ Restored authentic file state.");
+    function resetByteTamper() {
+      document.getElementById('tamperHashView').innerText = document.getElementById('origHashView').innerText;
+      document.getElementById('tamperImgView').style.filter = "none";
+      alert("Reset to authentic file buffer.");
     }
 
-    // Tab 4: Ledger Actions
-    function quickVerifyID(id) {
-      document.getElementById('verifyRecordId').value = id;
-      switchMainTab('tab-verify', document.querySelectorAll('.tab-trigger')[1]);
-      runVerificationAudit();
+    // Tab 4: Ledger Table
+    function quickVerifyRow(id) {
+      document.getElementById('verifyRecordIdInput').value = id;
+      switchConsoleTab('tab-verify', document.querySelectorAll('.tab-button')[1]);
+      runIntegrityAudit();
     }
 
-    function downloadLedgerJSON() {
+    function exportLedgerJSON() {
       const data = [
         {
           record_id: 1001,
