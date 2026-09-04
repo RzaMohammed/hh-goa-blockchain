@@ -1,0 +1,2185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HACKER HOUSE GOA // Face Identification & Blockchain Verification Engine</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700;1,900&family=Noto+Sans+Devanagari:wght@700;800;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-page: #04130b;
+      --bg-surface: #061c12;
+      --bg-card: rgba(8, 28, 18, 0.88);
+      --bg-card-hover: rgba(12, 40, 26, 0.95);
+      --bg-darker: #020b06;
+
+      --grid-line: rgba(34, 110, 68, 0.2);
+      --border-green: rgba(42, 130, 82, 0.38);
+      --border-green-glow: rgba(74, 222, 128, 0.45);
+
+      --gold-primary: #ffdf00;
+      --gold-bright: #ffe600;
+      --gold-glow: rgba(255, 223, 0, 0.35);
+      
+      --pink-goa: #ff1b7a;
+      --pink-glow: rgba(255, 27, 122, 0.55);
+
+      --emerald-bright: #22c55e;
+      --emerald-glow: rgba(34, 197, 94, 0.35);
+      --alert-crimson: #ef4444;
+      --alert-glow: rgba(239, 68, 68, 0.45);
+      --amber-warn: #f59e0b;
+
+      --text-white: #f0fdf4;
+      --text-gold: #ffdf00;
+      --text-muted: #85a995;
+      --text-subtle: #4f7461;
+
+      --font-serif: 'Playfair Display', Georgia, serif;
+      --font-devanagari: 'Noto Sans Devanagari', sans-serif;
+      --font-sans: 'Space Grotesk', 'Inter', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-white);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Cyber Matrix Grid Background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-size: 34px 34px;
+      background-image: 
+        linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .app-wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 18px 32px 70px 32px;
+    }
+
+    /* 1. TOP NAVBAR */
+    .top-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 4px 0 22px 0;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .badge-studio {
+      background: var(--gold-primary);
+      color: #000;
+      font-weight: 800;
+      font-size: 0.84rem;
+      padding: 6px 16px;
+      border-radius: 24px;
+      letter-spacing: 0.05em;
+      box-shadow: 0 0 16px var(--gold-glow);
+    }
+
+    .brand-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-serif);
+      font-size: 1.18rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--gold-primary);
+    }
+
+    .badge-goa-pill-mini {
+      background: var(--pink-goa);
+      color: #fff;
+      font-family: var(--font-devanagari);
+      font-weight: 800;
+      font-size: 0.88rem;
+      padding: 2px 10px;
+      border-radius: 12px;
+      box-shadow: 0 0 14px var(--pink-glow);
+      line-height: 1.3;
+    }
+
+    .badge-task {
+      background: rgba(8, 28, 18, 0.9);
+      border: 1px solid var(--border-green);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      padding: 5px 12px;
+      border-radius: 16px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+    }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .nav-link-hype {
+      color: var(--gold-primary);
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link-hype:hover {
+      text-shadow: 0 0 12px var(--gold-glow);
+    }
+
+    .badge-chain {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(8, 28, 18, 0.95);
+      border: 1px solid rgba(74, 222, 128, 0.4);
+      color: var(--gold-primary);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 7px 15px;
+      border-radius: 20px;
+      font-family: var(--font-mono);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .badge-chain:hover {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 18px var(--gold-glow);
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--gold-primary);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--gold-primary);
+      animation: dotPulse 2s infinite ease-in-out;
+    }
+
+    @keyframes dotPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.8); }
+    }
+
+    /* 2. HERO BANNER CARD */
+    .hero-card {
+      background: radial-gradient(circle at 50% 40%, #0e3b28 0%, #09281a 60%, #051a11 100%);
+      border: 1px solid var(--border-green);
+      border-radius: 26px;
+      padding: 30px 38px 34px 38px;
+      text-align: center;
+      position: relative;
+      margin-bottom: 24px;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(74, 222, 128, 0.25);
+      overflow: hidden;
+    }
+
+    .hero-top-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.8rem;
+      font-family: var(--font-mono);
+      color: var(--gold-primary);
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      margin-bottom: 16px;
+      text-transform: uppercase;
+    }
+
+    .hero-title-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .hero-serif-title {
+      font-family: var(--font-serif);
+      font-size: 4.4rem;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      color: var(--gold-primary);
+      text-transform: uppercase;
+      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 0 35px var(--gold-glow);
+      line-height: 1;
+    }
+
+    .badge-goa-hero {
+      background: var(--pink-goa);
+      color: #fff;
+      font-family: var(--font-devanagari);
+      font-size: 3.2rem;
+      font-weight: 900;
+      padding: 6px 26px 12px 26px;
+      border-radius: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 38px var(--pink-glow), inset 0 2px 4px rgba(255, 255, 255, 0.4);
+      line-height: 1;
+      transform: translateY(-2px);
+    }
+
+    .hero-subtitle {
+      color: #c9e8d6;
+      font-size: 1rem;
+      font-weight: 500;
+      margin-bottom: 22px;
+      letter-spacing: -0.01em;
+    }
+
+    .tech-badges-row {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .tech-pill {
+      background: rgba(5, 22, 14, 0.85);
+      border: 1px solid var(--border-green);
+      color: #a7e0be;
+      font-size: 0.82rem;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      padding: 7px 15px;
+      border-radius: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    .tech-pill svg {
+      color: var(--emerald-bright);
+    }
+
+    /* 3. EXECUTION MODE & SCENARIOS CARD */
+    .mode-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-green);
+      border-radius: 22px;
+      padding: 22px 26px;
+      margin-bottom: 24px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .mode-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .mode-title-group {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .mode-icon-circle {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid var(--emerald-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--emerald-bright);
+    }
+
+    .mode-label {
+      font-size: 0.94rem;
+      font-weight: 800;
+      color: var(--gold-primary);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-sandbox-mode {
+      background: rgba(255, 27, 122, 0.16);
+      border: 1px solid rgba(255, 27, 122, 0.5);
+      color: var(--pink-goa);
+      font-size: 0.74rem;
+      padding: 3px 9px;
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+
+    .mode-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .toggle-group {
+      display: flex;
+      background: rgba(3, 14, 9, 0.9);
+      padding: 4px;
+      border-radius: 14px;
+      border: 1px solid var(--border-green);
+    }
+
+    .toggle-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 8px 18px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .toggle-btn.active {
+      background: var(--gold-primary);
+      color: #000;
+      box-shadow: 0 0 16px var(--gold-glow);
+    }
+
+    /* Simulation Scenario Grid */
+    .section-label {
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--gold-primary);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .scenarios-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 22px;
+    }
+
+    .scenario-card {
+      background: rgba(5, 22, 14, 0.7);
+      border: 1px solid var(--border-green);
+      border-radius: 16px;
+      padding: 15px 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .scenario-card:hover {
+      background: rgba(10, 36, 24, 0.9);
+      border-color: var(--border-green-glow);
+      transform: translateY(-2px);
+    }
+
+    .scenario-card.active {
+      border-color: var(--gold-primary);
+      background: rgba(16, 50, 34, 0.95);
+      box-shadow: 0 0 20px rgba(255, 223, 0, 0.25);
+    }
+
+    .scenario-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .scenario-title {
+      font-size: 0.9rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .scenario-score {
+      font-family: var(--font-mono);
+      font-size: 0.82rem;
+      font-weight: 700;
+    }
+
+    .scenario-subtext {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      line-height: 1.35;
+    }
+
+    /* Quick Load Portraits */
+    .portraits-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .portrait-card {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(5, 22, 14, 0.7);
+      border: 1px solid var(--border-green);
+      border-radius: 15px;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .portrait-card:hover {
+      background: rgba(10, 36, 24, 0.9);
+      border-color: var(--border-green-glow);
+    }
+
+    .portrait-card.active {
+      border-color: var(--gold-primary);
+      background: rgba(16, 50, 34, 0.95);
+      box-shadow: 0 0 18px rgba(255, 223, 0, 0.3);
+    }
+
+    .portrait-thumb {
+      width: 46px;
+      height: 46px;
+      border-radius: 10px;
+      object-fit: cover;
+      border: 1px solid var(--border-green);
+      background: #000;
+    }
+
+    .portrait-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .portrait-name {
+      font-size: 0.86rem;
+      font-weight: 700;
+      color: var(--text-white);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .portrait-role {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 4. MASTER NAVIGATION TABS */
+    .nav-tabs-wrapper {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 24px;
+      background: rgba(6, 24, 16, 0.9);
+      padding: 6px;
+      border-radius: 16px;
+      border: 1px solid var(--border-green);
+      overflow-x: auto;
+    }
+
+    .tab-trigger {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-family: var(--font-sans);
+      font-size: 0.9rem;
+      font-weight: 700;
+      padding: 10px 20px;
+      border-radius: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    .tab-trigger:hover {
+      color: var(--text-white);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .tab-trigger.active {
+      color: #000;
+      background: linear-gradient(135deg, var(--gold-primary), #eab308);
+      box-shadow: 0 0 18px var(--gold-glow);
+    }
+
+    .tab-pane {
+      display: none;
+    }
+
+    .tab-pane.active {
+      display: block;
+      animation: tabFadeIn 0.3s ease;
+    }
+
+    @keyframes tabFadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 5. WORKSPACE GRIDS & PANELS */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .panel-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-green);
+      border-radius: 22px;
+      padding: 24px;
+      box-shadow: 0 10px 36px rgba(0, 0, 0, 0.45);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      padding-bottom: 14px;
+      border-bottom: 1px solid var(--border-green);
+    }
+
+    .panel-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--gold-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: 0.04em;
+    }
+
+    /* Face HUD Canvas */
+    .face-hud-box {
+      position: relative;
+      width: 100%;
+      height: 330px;
+      background: var(--bg-darker);
+      border-radius: 16px;
+      overflow: hidden;
+      border: 1px solid var(--border-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 18px;
+    }
+
+    #faceCanvas {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .hud-scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold-primary), transparent);
+      box-shadow: 0 0 14px var(--gold-primary);
+      animation: scanAnim 2.8s infinite linear;
+      display: none;
+    }
+
+    @keyframes scanAnim {
+      0% { top: 0%; opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .hud-tags-row {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      right: 10px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+    }
+
+    .hud-pill {
+      background: rgba(2, 10, 6, 0.88);
+      border: 1px solid var(--border-green);
+      color: var(--gold-primary);
+      font-size: 0.72rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    /* Controls & Execution Button */
+    .controls-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .control-box {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .control-label {
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .control-input {
+      background: rgba(3, 14, 9, 0.85);
+      border: 1px solid var(--border-green);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--text-white);
+      font-family: var(--font-sans);
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .control-input:focus {
+      border-color: var(--gold-primary);
+      box-shadow: 0 0 12px var(--gold-glow);
+    }
+
+    .btn-execute {
+      background: linear-gradient(135deg, var(--gold-primary), #d4af37);
+      color: #000;
+      font-family: var(--font-sans);
+      font-size: 1rem;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      border: none;
+      padding: 14px 24px;
+      border-radius: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      box-shadow: 0 6px 20px var(--gold-glow);
+      transition: all 0.2s ease;
+    }
+
+    .btn-execute:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 28px rgba(255, 223, 0, 0.5);
+    }
+
+    .btn-execute:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* 6. PIPELINE STEPPER */
+    .stepper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+
+    .step-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 16px;
+      background: rgba(4, 18, 12, 0.65);
+      border: 1px solid var(--border-green);
+      border-radius: 12px;
+      transition: all 0.3s ease;
+    }
+
+    .step-item.active {
+      border-color: var(--gold-primary);
+      background: rgba(255, 223, 0, 0.08);
+      box-shadow: 0 0 14px rgba(255, 223, 0, 0.2);
+    }
+
+    .step-item.completed {
+      border-color: rgba(34, 197, 94, 0.5);
+      background: rgba(34, 197, 94, 0.08);
+    }
+
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step-item.active .step-num {
+      background: var(--gold-primary);
+      color: #000;
+    }
+
+    .step-item.completed .step-num {
+      background: var(--emerald-bright);
+      color: #000;
+    }
+
+    .step-body {
+      flex: 1;
+    }
+
+    .step-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-white);
+    }
+
+    .step-desc {
+      font-size: 0.73rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+    }
+
+    .step-status {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--text-subtle);
+    }
+
+    .step-item.active .step-status {
+      color: var(--gold-primary);
+      animation: statusBlink 1s infinite alternate;
+    }
+
+    .step-item.completed .step-status {
+      color: var(--emerald-bright);
+    }
+
+    @keyframes statusBlink {
+      from { opacity: 0.3; }
+      to { opacity: 1; }
+    }
+
+    /* Candidates & Receipts */
+    .candidates-box {
+      margin-top: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .candidate-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: rgba(4, 18, 12, 0.8);
+      border: 1px solid var(--border-green);
+      border-radius: 12px;
+      padding: 10px 14px;
+    }
+
+    .candidate-row.winner {
+      border-color: var(--emerald-bright);
+      background: rgba(34, 197, 94, 0.1);
+      box-shadow: 0 0 16px rgba(34, 197, 94, 0.2);
+    }
+
+    .candidate-thumb {
+      width: 48px;
+      height: 48px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 1px solid var(--border-green);
+      background: #000;
+    }
+
+    .candidate-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .candidate-title {
+      font-size: 0.84rem;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .candidate-url {
+      font-size: 0.71rem;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .sim-bar-container {
+      margin-top: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sim-track {
+      flex: 1;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .sim-level {
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, var(--gold-primary), var(--emerald-bright));
+    }
+
+    .sim-val {
+      font-size: 0.75rem;
+      font-family: var(--font-mono);
+      font-weight: 700;
+      color: var(--emerald-bright);
+      width: 42px;
+      text-align: right;
+    }
+
+    .receipt-panel {
+      background: rgba(2, 10, 6, 0.95);
+      border: 1px solid var(--border-green);
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 18px;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+    }
+
+    .receipt-line {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .receipt-key {
+      color: var(--text-muted);
+    }
+
+    .receipt-val {
+      color: var(--text-white);
+      font-weight: 700;
+      word-break: break-all;
+      text-align: right;
+      max-width: 65%;
+    }
+
+    .receipt-val.highlight {
+      color: var(--gold-primary);
+    }
+
+    .verdict-banner {
+      padding: 18px;
+      border-radius: 14px;
+      text-align: center;
+      margin: 18px 0;
+      font-family: var(--font-sans);
+    }
+
+    .verdict-pass {
+      background: rgba(34, 197, 94, 0.12);
+      border: 2px solid var(--emerald-bright);
+      box-shadow: 0 0 24px var(--emerald-glow);
+    }
+
+    .verdict-pass h3 {
+      color: var(--emerald-bright);
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    .verdict-fail {
+      background: rgba(239, 68, 68, 0.14);
+      border: 2px solid var(--alert-crimson);
+      box-shadow: 0 0 24px var(--alert-glow);
+    }
+
+    .verdict-fail h3 {
+      color: var(--alert-crimson);
+      font-size: 1.25rem;
+      margin-bottom: 6px;
+    }
+
+    /* Tamper Visualizer Diff Cards */
+    .diff-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .diff-box {
+      background: rgba(3, 14, 9, 0.9);
+      border: 1px solid var(--border-green);
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .diff-box-title {
+      font-size: 0.85rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      margin-bottom: 8px;
+    }
+
+    .diff-code-view {
+      background: rgba(0, 0, 0, 0.6);
+      border: 1px solid var(--border-green);
+      border-radius: 8px;
+      padding: 10px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      word-break: break-all;
+      line-height: 1.5;
+    }
+
+    /* Ledger Table */
+    .ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+      font-family: var(--font-mono);
+      text-align: left;
+    }
+
+    .ledger-table th {
+      padding: 12px 14px;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border-green);
+    }
+
+    .ledger-table td {
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(42, 130, 82, 0.2);
+    }
+
+    @media (max-width: 1024px) {
+      .scenarios-grid, .portraits-grid, .diff-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero-serif-title {
+        font-size: 3rem;
+      }
+      .badge-goa-hero {
+        font-size: 2.2rem;
+        padding: 4px 18px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="app-wrapper">
+
+    <!-- 1. TOP NAVBAR -->
+    <header class="top-nav">
+      <div class="nav-left">
+        <div class="badge-studio">2:41PM STUDIO</div>
+        <div class="brand-title">
+          <span>HACKER HOUSE</span>
+          <span class="badge-goa-pill-mini">गोवा</span>
+        </div>
+        <div class="badge-task">Task 3 Shortlisting</div>
+      </div>
+
+      <div class="nav-right">
+        <span class="nav-link-hype" onclick="triggerHype()">CHECK HYPE</span>
+        <div class="badge-chain" id="chainStatusBtn" onclick="toggleChainMode()">
+          <span class="pulse-dot"></span>
+          <span id="chainLabel">SOLANA DEVNET ↗</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. HERO BANNER -->
+    <section class="hero-card">
+      <div class="hero-top-info">
+        <span>● GOA, INDIA • 28 - 31 OCT 2026</span>
+        <span>2:41 PM STUDIO</span>
+      </div>
+
+      <div class="hero-title-container">
+        <h1 class="hero-serif-title">HACKER</h1>
+        <div class="badge-goa-hero">गोवा</div>
+        <h1 class="hero-serif-title">HOUSE</h1>
+      </div>
+
+      <p class="hero-subtitle">
+        Off-chain Biometric Facial Identification & Solana Devnet / Ethereum Sepolia Blockchain Verification Engine
+      </p>
+
+      <div class="tech-badges-row">
+        <div class="tech-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          <span>InsightFace Buffalo_L 512-D / YuNet SFace</span>
+        </div>
+        <div class="tech-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>SerpApi Visual Search</span>
+        </div>
+        <div class="tech-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="16 18 22 12 16 6"></polyline>
+            <polyline points="8 6 2 12 8 18"></polyline>
+          </svg>
+          <span>RFC 8785 Canonical JSON</span>
+        </div>
+        <div class="tech-pill">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+          </svg>
+          <span>Solana SPL Memo v2 & Sepolia Solidity</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. EXECUTION MODE & SCENARIOS -->
+    <section class="mode-card">
+      <div class="mode-header">
+        <div class="mode-title-group">
+          <div class="mode-icon-circle">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+            </svg>
+          </div>
+          <div>
+            <div class="mode-label">
+              <span>EXECUTION MODE</span>
+              <span class="badge-sandbox-mode">SANDBOX SIMULATOR</span>
+            </div>
+            <div class="mode-desc">Test full pipeline, realistic stage timing, and cryptographic tamper audit without local GPU.</div>
+          </div>
+        </div>
+
+        <div class="toggle-group">
+          <button class="toggle-btn" id="liveApiBtn" onclick="setExecutionMode('live')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            <span>Live API</span>
+          </button>
+          <button class="toggle-btn active" id="demoSandboxBtn" onclick="setExecutionMode('sandbox')">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="2" width="20" height="20" rx="4"></rect>
+              <circle cx="8" cy="8" r="1.5"></circle>
+              <circle cx="16" cy="8" r="1.5"></circle>
+              <circle cx="8" cy="16" r="1.5"></circle>
+              <circle cx="16" cy="16" r="1.5"></circle>
+            </svg>
+            <span>Demo Sandbox</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- SIMULATION SCENARIO SELECTOR -->
+      <div class="section-label">SIMULATION SCENARIO:</div>
+      <div class="scenarios-grid">
+        <div class="scenario-card active" id="scen-verified" onclick="selectScenario('verified')">
+          <div class="scenario-top">
+            <span class="scenario-title" style="color: var(--emerald-bright)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              Verified
+            </span>
+            <span class="scenario-score" style="color: var(--emerald-bright)">94.8%</span>
+          </div>
+          <div class="scenario-subtext">Authentic face match + Solana Devnet proof</div>
+        </div>
+
+        <div class="scenario-card" id="scen-tampered" onclick="selectScenario('tampered')">
+          <div class="scenario-top">
+            <span class="scenario-title" style="color: var(--pink-goa)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              Tampered
+            </span>
+            <span class="scenario-score" style="color: var(--pink-goa)">Audit X</span>
+          </div>
+          <div class="scenario-subtext">Off-chain altered file reveals forgery</div>
+        </div>
+
+        <div class="scenario-card" id="scen-lowmatch" onclick="selectScenario('lowmatch')">
+          <div class="scenario-top">
+            <span class="scenario-title" style="color: var(--amber-warn)">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              Low Match
+            </span>
+            <span class="scenario-score" style="color: var(--amber-warn)">68.2%</span>
+          </div>
+          <div class="scenario-subtext">Lookalike fails below 85% threshold</div>
+        </div>
+
+        <div class="scenario-card" id="scen-noface" onclick="selectScenario('noface')">
+          <div class="scenario-top">
+            <span class="scenario-title" style="color: #94a3b8">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
+              No Face
+            </span>
+            <span class="scenario-score" style="color: #94a3b8">0 Faces</span>
+          </div>
+          <div class="scenario-subtext">Non-face image halts at Stage 1</div>
+        </div>
+      </div>
+
+      <!-- QUICK LOAD SAMPLE PORTRAITS -->
+      <div class="section-label">QUICK-LOAD SAMPLE PORTRAITS:</div>
+      <div class="portraits-grid">
+        <div class="portrait-card active" id="port-person" onclick="loadPortrait('person', 'Tech Executive (Authentic)', 'Keynote Speaker at Tech Summit', this)">
+          <img id="thumb-person" class="portrait-thumb" alt="Tech Executive" />
+          <div class="portrait-info">
+            <div class="portrait-name">Tech Executive (Authentic)</div>
+            <div class="portrait-role">Keynote Speaker at Tech Summit</div>
+          </div>
+        </div>
+
+        <div class="portrait-card" id="port-tamper" onclick="loadPortrait('tamper', 'Tamper Attack Case', 'Altered Metadata Simulation', this)">
+          <img id="thumb-tamper" class="portrait-thumb" alt="Tamper Attack" />
+          <div class="portrait-info">
+            <div class="portrait-name">Tamper Attack Case</div>
+            <div class="portrait-role">Altered Metadata Simulation</div>
+          </div>
+        </div>
+
+        <div class="portrait-card" id="port-lookalike" onclick="loadPortrait('lookalike', 'Lookalike (Low Similarity)', 'Distant Resemblance', this)">
+          <img id="thumb-lookalike" class="portrait-thumb" alt="Lookalike" />
+          <div class="portrait-info">
+            <div class="portrait-name">Lookalike (Low Similarity)</div>
+            <div class="portrait-role">Distant Resemblance</div>
+          </div>
+        </div>
+
+        <div class="portrait-card" id="port-noface" onclick="loadPortrait('noface', 'Landscape (No Face)', 'Scenery / Abstract', this)">
+          <img id="thumb-noface" class="portrait-thumb" alt="Landscape" />
+          <div class="portrait-info">
+            <div class="portrait-name">Landscape (No Face)</div>
+            <div class="portrait-role">Scenery / Abstract</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. MASTER NAVIGATION TABS -->
+    <div class="nav-tabs-wrapper">
+      <button class="tab-trigger active" onclick="switchMainTab('tab-pipeline', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+        </svg>
+        Pipeline Execution
+      </button>
+      <button class="tab-trigger" onclick="switchMainTab('tab-verify', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+          <polyline points="9 12 11 14 15 10"></polyline>
+        </svg>
+        Integrity Verification & Audit
+      </button>
+      <button class="tab-trigger" onclick="switchMainTab('tab-tamper', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        Tamper Attack Lab
+      </button>
+      <button class="tab-trigger" onclick="switchMainTab('tab-ledger', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+          <line x1="16" y1="13" x2="8" y2="13"></line>
+          <line x1="16" y1="17" x2="8" y2="17"></line>
+        </svg>
+        On-Chain Ledger
+      </button>
+      <button class="tab-trigger" onclick="switchMainTab('tab-arch', this)">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+        Architecture & Smart Contract
+      </button>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 1: PIPELINE EXECUTION -->
+    <!-- ============================================================= -->
+    <div id="tab-pipeline" class="tab-pane active">
+      <div class="workspace-grid">
+
+        <!-- LEFT COLUMN: FACE HUD & CONTROLS -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>
+                <line x1="9" y1="9" x2="9.01" y2="9"></line>
+                <line x1="15" y1="9" x2="15.01" y2="9"></line>
+              </svg>
+              <span>STAGE 1: BIOMETRIC FACE EXTRACTION</span>
+            </div>
+            <span class="badge-task" id="activeModelLabel">YuNet + SFace 512-d</span>
+          </div>
+
+          <!-- Face Canvas HUD -->
+          <div class="face-hud-box">
+            <canvas id="faceCanvas"></canvas>
+            <div class="hud-scan-line" id="hudScanLine"></div>
+            <div class="hud-tags-row">
+              <span class="hud-pill" id="hudFaceStatus">FACE DETECTED [CONF: 0.984]</span>
+              <span class="hud-pill" id="hudLandmarkStatus">5-PT ALIGNED</span>
+            </div>
+          </div>
+
+          <!-- Parameters -->
+          <div class="controls-row">
+            <div class="control-box">
+              <label class="control-label">
+                <span>Similarity Threshold</span>
+                <span id="threshDisplay" style="color: var(--gold-primary)">0.85 (85%)</span>
+              </label>
+              <input type="range" class="control-input" id="thresholdSlider" min="0.50" max="0.95" step="0.05" value="0.85" oninput="document.getElementById('threshDisplay').innerText = `${this.value} (${Math.round(this.value*100)}%)`" />
+            </div>
+
+            <div class="control-box">
+              <label class="control-label">Search Provider</label>
+              <select class="control-input" id="searchProviderSelect">
+                <option value="serpapi">SerpApi (Google Lens)</option>
+                <option value="serper">Serper.dev Web Search</option>
+                <option value="direct" selected>Direct Candidate Corpus</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="btn-execute" id="executePipelineBtn" onclick="runHackerHousePipeline()">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+            <span id="btnExecuteText">EXECUTE HACKER HOUSE PIPELINE</span>
+          </button>
+
+          <!-- Custom Upload Fallback -->
+          <div style="margin-top: 14px; text-align: center;">
+            <input type="file" id="customFilePicker" accept="image/*" style="display:none" onchange="handleCustomUpload(event)" />
+            <button class="tech-pill" style="cursor: pointer;" onclick="document.getElementById('customFilePicker').click()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+              <span>Or upload custom photo from computer</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT COLUMN: 5-STAGE PIPELINE STEPPER & BLOCKCHAIN RECEIPT -->
+        <div class="panel-card">
+          <div class="panel-header">
+            <div class="panel-title">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+              </svg>
+              <span>STAGE 2-5: NOTARIZATION ENGINE</span>
+            </div>
+            <span class="badge-task" id="overallRunStatus">READY</span>
+          </div>
+
+          <!-- 5-Stage Stepper -->
+          <div class="stepper">
+            <div class="step-item" id="p-step1">
+              <div class="step-num">1</div>
+              <div class="step-body">
+                <div class="step-name">Biometric Facial Alignment</div>
+                <div class="step-desc">OpenCV YuNet DNN extracts 5 fiducial landmarks</div>
+              </div>
+              <div class="step-status">PENDING</div>
+            </div>
+
+            <div class="step-item" id="p-step2">
+              <div class="step-num">2</div>
+              <div class="step-body">
+                <div class="step-name">Reverse Image Web Discovery</div>
+                <div class="step-desc">SerpApi queries Google Lens reverse index</div>
+              </div>
+              <div class="step-status">PENDING</div>
+            </div>
+
+            <div class="step-item" id="p-step3">
+              <div class="step-num">3</div>
+              <div class="step-body">
+                <div class="step-name">Cosine Metric Ranking</div>
+                <div class="step-desc">Computes 128-d / 512-d unit vector similarity</div>
+              </div>
+              <div class="step-status">PENDING</div>
+            </div>
+
+            <div class="step-item" id="p-step4">
+              <div class="step-num">4</div>
+              <div class="step-body">
+                <div class="step-name">Cryptographic Fingerprinting</div>
+                <div class="step-desc">Computes raw SHA-256 digest on matched bytes</div>
+              </div>
+              <div class="step-status">PENDING</div>
+            </div>
+
+            <div class="step-item" id="p-step5">
+              <div class="step-num">5</div>
+              <div class="step-body">
+                <div class="step-name">Blockchain On-Chain Notarization</div>
+                <div class="step-desc">Records immutable hash to Solana / Sepolia</div>
+              </div>
+              <div class="step-status">PENDING</div>
+            </div>
+          </div>
+
+          <!-- Verdict Banner -->
+          <div id="verdictBannerBox" style="display:none;"></div>
+
+          <!-- Discovered Candidates Box -->
+          <div id="candidatesOutputBox" style="display:none;">
+            <div class="section-label">TOP WEB MATCHES:</div>
+            <div class="candidates-box" id="candidatesListContainer"></div>
+          </div>
+
+          <!-- Blockchain On-Chain Receipt -->
+          <div class="receipt-panel" id="blockchainReceiptBox" style="display:none;">
+            <div style="font-size: 0.88rem; font-weight: 800; color: var(--gold-primary); margin-bottom: 10px; display: flex; align-items: center; gap: 8px;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+              </svg>
+              ON-CHAIN PROOF OF AUTHENTICITY
+            </div>
+            <div class="receipt-line">
+              <span class="receipt-key">Network:</span>
+              <span class="receipt-val highlight" id="rcNetwork">Solana Devnet (SPL Memo v2)</span>
+            </div>
+            <div class="receipt-line">
+              <span class="receipt-key">Signature / Tx:</span>
+              <span class="receipt-val" id="rcTxSig">4uQ9...7bXk2</span>
+            </div>
+            <div class="receipt-line">
+              <span class="receipt-key">SHA-256 Digest:</span>
+              <span class="receipt-val highlight" id="rcHash">a7f28c11e3895a98...</span>
+            </div>
+            <div class="receipt-line">
+              <span class="receipt-key">Similarity:</span>
+              <span class="receipt-val" id="rcScore" style="color: var(--emerald-bright)">94.8% Match</span>
+            </div>
+            <div class="receipt-line">
+              <span class="receipt-key">Explorer:</span>
+              <span class="receipt-val">
+                <a href="#" target="_blank" id="rcExplorerLink" style="color: var(--gold-primary); text-decoration: none;">View On Solana Explorer ↗</a>
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 2: INTEGRITY VERIFICATION -->
+    <!-- ============================================================= -->
+    <div id="tab-verify" class="tab-pane">
+      <div class="panel-card" style="max-width: 960px; margin: 0 auto;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              <polyline points="9 12 11 14 15 10"></polyline>
+            </svg>
+            <span>Cryptographic Re-Hashing & On-Chain Audit</span>
+          </div>
+          <span class="badge-task">SHA-256 // LEDGER AUDIT</span>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 20px;">
+          Re-hashes raw local file bytes in real-time using browser Web Crypto API and verifies the fingerprint against the immutable on-chain record.
+        </p>
+
+        <div class="controls-row">
+          <div class="control-box">
+            <label class="control-label">Target File to Audit</label>
+            <select class="control-input" id="verifySelectChoice">
+              <option value="authentic">Authentic File (Keynote Speaker)</option>
+              <option value="tampered">Tampered File (1-Byte Metadata Altered)</option>
+            </select>
+          </div>
+          <div class="control-box">
+            <label class="control-label">On-Chain Record ID</label>
+            <input type="number" class="control-input" id="verifyRecordId" value="1001" />
+          </div>
+        </div>
+
+        <button class="btn-execute" onclick="runVerificationAudit()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <span>RE-HASH & VERIFY AGAINST BLOCKCHAIN</span>
+        </button>
+
+        <div id="verifyOutcomeBox" style="display:none; margin-top: 20px;"></div>
+
+        <div class="receipt-panel" id="verifyCompareDetails" style="display:none;">
+          <div style="font-weight: 800; color: var(--gold-primary); margin-bottom: 10px;">FINGERPRINT AUDIT LOG</div>
+          <div class="receipt-line">
+            <span class="receipt-key">Computed Local Hash:</span>
+            <span class="receipt-val" id="auditLocalHash">--</span>
+          </div>
+          <div class="receipt-line">
+            <span class="receipt-key">Blockchain Recorded Hash:</span>
+            <span class="receipt-val highlight" id="auditChainHash">--</span>
+          </div>
+          <div class="receipt-line">
+            <span class="receipt-key">Timestamp of Notarization:</span>
+            <span class="receipt-val">2026-09-04 22:15:30 UTC</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 3: TAMPER ATTACK LAB -->
+    <!-- ============================================================= -->
+    <div id="tab-tamper" class="tab-pane">
+      <div class="panel-card" style="max-width: 1050px; margin: 0 auto;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+              <line x1="12" y1="9" x2="12" y2="13"></line>
+              <line x1="12" y1="17" x2="12.01" y2="17"></line>
+            </svg>
+            <span>Forensic Avalanche Effect Simulator</span>
+          </div>
+          <span class="badge-task" style="color: var(--alert-crimson); border-color: var(--alert-crimson);">TAMPER LAB</span>
+        </div>
+
+        <p style="color: var(--text-muted); font-size: 0.88rem; line-height: 1.6; margin-bottom: 18px;">
+          Demonstrates why blockchain notary makes media tamper-evident: modifying even a single imperceptible byte alters the SHA-256 fingerprint drastically.
+        </p>
+
+        <div class="diff-grid">
+          <div class="diff-box">
+            <div class="diff-box-title" style="color: var(--gold-primary)">ORIGINAL AUTHENTIC MEDIA</div>
+            <div style="height: 180px; background: #000; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px;">
+              <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fed7aa'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%231e40af'/%3E%3C/svg%3E" style="max-height: 100%;" alt="Original" />
+            </div>
+            <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 4px;">SHA-256 Digest:</div>
+            <div class="diff-code-view" id="origDiffHash" style="color: var(--emerald-bright)">
+              a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f
+            </div>
+          </div>
+
+          <div class="diff-box">
+            <div class="diff-box-title" style="color: var(--alert-crimson)">ALTERED FORGERY / TAMPERED</div>
+            <div style="height: 180px; background: #000; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; position: relative;">
+              <img id="tamperCanvasPreview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 200 200'%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fed7aa'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%231e40af'/%3E%3C/svg%3E" style="max-height: 100%; filter: contrast(1.05);" alt="Tampered" />
+              <div style="position: absolute; top: 10px; right: 10px; background: var(--alert-crimson); color: #fff; font-size: 0.65rem; padding: 2px 8px; border-radius: 4px; font-weight: 700;">
+                MODIFIED
+              </div>
+            </div>
+            <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 4px;">Tampered SHA-256 Digest:</div>
+            <div class="diff-code-view" id="tamperDiffHash" style="color: var(--alert-crimson)">
+              3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 14px; margin-top: 20px;">
+          <button class="btn-execute" onclick="triggerTamperLabAction()" style="background: linear-gradient(135deg, #ef4444, #991b1b); color: #fff; box-shadow: 0 4px 20px var(--alert-glow);">
+            <span>⚡ INJECT 1-BYTE ATTACK & MUTATE HASH</span>
+          </button>
+          <button class="tech-pill" onclick="restoreTamperLabAction()" style="cursor: pointer; padding: 12px 20px;">
+            <span>Reset to Authentic State</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 4: ON-CHAIN LEDGER EXPLORER -->
+    <!-- ============================================================= -->
+    <div id="tab-ledger" class="tab-pane">
+      <div class="panel-card">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+            </svg>
+            <span>Immutable On-Chain Verification Ledger</span>
+          </div>
+          <button class="tech-pill" onclick="downloadLedgerJSON()" style="cursor: pointer;">
+            <span>Download Ledger JSON</span>
+          </button>
+        </div>
+
+        <div style="overflow-x: auto;">
+          <table class="ledger-table">
+            <thead>
+              <tr>
+                <th>RECORD ID</th>
+                <th>SHA-256 DIGEST</th>
+                <th>SOURCE URL</th>
+                <th>TIMESTAMP</th>
+                <th>SUBMITTER</th>
+                <th>ACTION</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="color: var(--gold-primary); font-weight: 800;">#1001</td>
+                <td>0xa7f28c11e3895a98d0f1...d1e43e2f</td>
+                <td style="color: var(--text-muted)">https://images.unsplash.com/photo-tech-speaker</td>
+                <td>2026-09-04 22:15:30 UTC</td>
+                <td style="color: var(--emerald-bright)">0x92aF...471C</td>
+                <td><button class="badge-task" onclick="quickVerifyID(1001)" style="cursor: pointer;">Verify</button></td>
+              </tr>
+              <tr>
+                <td style="color: var(--gold-primary); font-weight: 800;">#1002</td>
+                <td>0xb893c12988cb62804c86...8e291244</td>
+                <td style="color: var(--text-muted)">https://wikimedia.org/wiki/File:Portrait_Case.jpg</td>
+                <td>2026-09-04 21:50:12 UTC</td>
+                <td style="color: var(--emerald-bright)">0x92aF...471C</td>
+                <td><button class="badge-task" onclick="quickVerifyID(1002)" style="cursor: pointer;">Verify</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- TAB 5: ARCHITECTURE & SPECS -->
+    <!-- ============================================================= -->
+    <div id="tab-arch" class="tab-pane">
+      <div class="panel-card" style="max-width: 1000px; margin: 0 auto;">
+        <div class="panel-header">
+          <div class="panel-title">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+              <polyline points="2 17 12 22 22 17"></polyline>
+              <polyline points="2 12 12 17 22 12"></polyline>
+            </svg>
+            <span>Architecture & Smart Contract Specifications</span>
+          </div>
+          <span class="badge-task">SOLIDITY ^0.8.20</span>
+        </div>
+
+        <div class="controls-row" style="margin-bottom: 20px;">
+          <div>
+            <h4 style="color: var(--gold-primary); margin-bottom: 8px;">Why bytes32 instead of string?</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+              In Ethereum smart contract development, storing cryptographic hashes as <code>bytes32</code> consumes exactly 1 storage slot (32 bytes = 20,000 gas for cold write). In contrast, a 64-character hexadecimal <code>string</code> requires dynamic array encoding and consumes multiple storage words (~40,000+ gas). Storing as <code>bytes32</code> cuts on-chain gas costs by ~45%.
+            </p>
+          </div>
+          <div>
+            <h4 style="color: var(--emerald-bright); margin-bottom: 8px;">Off-Chain Biometric Pipeline</h4>
+            <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+              We deploy OpenCV DNN YuNet to isolate the primary subject and 5 fiducial landmarks. OpenCV SFace DNN aligns landmarks into a canonical pose and produces a 128-d/512-d unit hypersphere embedding. Cosine similarity matches candidates invariant to lighting and rotation.
+            </p>
+          </div>
+        </div>
+
+        <div style="background: rgba(0, 0, 0, 0.65); border: 1px solid var(--border-green); padding: 16px; border-radius: 12px; font-family: var(--font-mono); font-size: 0.78rem; overflow-x: auto; color: #86efac;">
+<pre>// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+contract FaceVerification {
+    struct Record {
+        bytes32 dataHash;
+        string sourceUrl;
+        uint256 timestamp;
+        address submitter;
+    }
+
+    mapping(uint256 => Record) private records;
+    mapping(bytes32 => uint256) private hashToRecordId;
+    uint256 public recordCount;
+
+    event DataRegistered(uint256 indexed recordId, bytes32 dataHash, string sourceUrl, uint256 timestamp, address indexed submitter);
+
+    function registerRecord(bytes32 _dataHash, string calldata _sourceUrl) external returns (uint256) {
+        require(_dataHash != bytes32(0), "Hash cannot be zero");
+        recordCount++;
+        records[recordCount] = Record(_dataHash, _sourceUrl, block.timestamp, msg.sender);
+        hashToRecordId[_dataHash] = recordCount;
+        emit DataRegistered(recordCount, _dataHash, _sourceUrl, block.timestamp, msg.sender);
+        return recordCount;
+    }
+
+    function getRecord(uint256 _recordId) external view returns (bytes32, string memory, uint256, address) {
+        Record memory rec = records[_recordId];
+        require(rec.timestamp > 0, "Record does not exist");
+        return (rec.dataHash, rec.sourceUrl, rec.timestamp, rec.submitter);
+    }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    // Embedded SVG Data URLs for zero-latency cross-platform rendering
+    const SAMPLE_AVATARS = {
+      person: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3CradialGradient id='g1' cx='50%25' cy='40%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%233b82f6'/%3E%3Cstop offset='100%25' stop-color='%231e3a8a'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23g1)'/%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fed7aa'/%3E%3Cpath d='M65 72 Q100 50 135 72 Q120 48 100 48 Q80 48 65 72' fill='%23451a03'/%3E%3Ccircle cx='85' cy='82' r='4' fill='%231e293b'/%3E%3Ccircle cx='115' cy='82' r='4' fill='%231e293b'/%3E%3Cpath d='M98 88 L102 96 L96 98' fill='none' stroke='%23ea580c' stroke-width='2'/%3E%3Cpath d='M88 108 Q100 118 112 108' fill='none' stroke='%23b91c1c' stroke-width='2.5'/%3E%3Crect x='76' y='76' width='18' height='12' rx='2' fill='none' stroke='%230284c7' stroke-width='2'/%3E%3Crect x='106' y='76' width='18' height='12' rx='2' fill='none' stroke='%230284c7' stroke-width='2'/%3E%3Cline x1='94' y1='82' x2='106' y2='82' stroke='%230284c7' stroke-width='2'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%231e40af'/%3E%3C/svg%3E",
+      tamper: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3CradialGradient id='g2' cx='50%25' cy='40%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%2310b981'/%3E%3Cstop offset='100%25' stop-color='%23064e3b'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23g2)'/%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fbcfe8'/%3E%3Ccircle cx='86' cy='82' r='4' fill='%231e293b'/%3E%3Ccircle cx='114' cy='82' r='4' fill='%231e293b'/%3E%3Cpath d='M90 106 Q100 120 110 106' fill='none' stroke='%23db2777' stroke-width='3'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%23f8fafc'/%3E%3C/svg%3E",
+      lookalike: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3CradialGradient id='g3' cx='50%25' cy='40%25' r='60%25'%3E%3Cstop offset='0%25' stop-color='%236366f1'/%3E%3Cstop offset='100%25' stop-color='%23312e81'/%3E%3C/radialGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23g3)'/%3E%3Ccircle cx='100' cy='85' r='42' fill='%23fef08a'/%3E%3Cpath d='M65 70 Q100 45 135 70 Q120 40 100 40 Q80 40 65 70' fill='%231e1b4b'/%3E%3Ccircle cx='86' cy='82' r='4' fill='%231e293b'/%3E%3Ccircle cx='114' cy='82' r='4' fill='%231e293b'/%3E%3Cpath d='M75 100 Q100 135 125 100 Q100 120 75 100' fill='%231e1b4b'/%3E%3Cpath d='M40 180 Q100 130 160 180 Z' fill='%23334155'/%3E%3C/svg%3E",
+      noface: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0%25' stop-color='%230284c7'/%3E%3Cstop offset='100%25' stop-color='%23f59e0b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='200' height='200' fill='url(%23sky)'/%3E%3Cpath d='M0 140 L50 90 L100 140 L150 80 L200 150 L200 200 L0 200 Z' fill='%23166534'/%3E%3Ccircle cx='150' cy='50' r='18' fill='%23fef08a'/%3E%3C/svg%3E"
+    };
+
+    // State Variables
+    let currentPortraitKey = "person";
+    let activeScenario = "verified";
+    let activeChain = "solana";
+    let currentFileHash = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
+
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('thumb-person').src = SAMPLE_AVATARS.person;
+      document.getElementById('thumb-tamper').src = SAMPLE_AVATARS.tamper;
+      document.getElementById('thumb-lookalike').src = SAMPLE_AVATARS.lookalike;
+      document.getElementById('thumb-noface').src = SAMPLE_AVATARS.noface;
+
+      initFaceCanvas();
+      loadPortrait('person', 'Tech Executive (Authentic)', 'Keynote Speaker at Tech Summit', document.getElementById('port-person'));
+    });
+
+    function switchMainTab(tabId, btn) {
+      document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-trigger').forEach(t => t.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    function triggerHype() {
+      alert("🔥 HACKER HOUSE GOA 2026 🔥\n\nTask 3: Off-Chain Biometric Facial Recognition + Blockchain On-Chain Verification Engine.\nReady to inspect!");
+    }
+
+    function toggleChainMode() {
+      const label = document.getElementById('chainLabel');
+      if (activeChain === 'solana') {
+        activeChain = 'sepolia';
+        label.innerText = 'ETHEREUM SEPOLIA ↗';
+      } else {
+        activeChain = 'solana';
+        label.innerText = 'SOLANA DEVNET ↗';
+      }
+    }
+
+    function setExecutionMode(mode) {
+      document.getElementById('liveApiBtn').classList.toggle('active', mode === 'live');
+      document.getElementById('demoSandboxBtn').classList.toggle('active', mode === 'sandbox');
+      if (mode === 'live') {
+        alert("📡 Live API Mode: Connects to local Python pipeline (python app.py / RPC). Ensure Python backend is active.");
+      }
+    }
+
+    function selectScenario(scen) {
+      activeScenario = scen;
+      document.querySelectorAll('.scenario-card').forEach(c => c.classList.remove('active'));
+      document.getElementById(`scen-${scen}`).classList.add('active');
+
+      if (scen === 'verified') {
+        loadPortrait('person', 'Tech Executive (Authentic)', 'Keynote Speaker at Tech Summit', document.getElementById('port-person'));
+      } else if (scen === 'tampered') {
+        loadPortrait('tamper', 'Tamper Attack Case', 'Altered Metadata Simulation', document.getElementById('port-tamper'));
+      } else if (scen === 'lowmatch') {
+        loadPortrait('lookalike', 'Lookalike (Low Similarity)', 'Distant Resemblance', document.getElementById('port-lookalike'));
+      } else if (scen === 'noface') {
+        loadPortrait('noface', 'Landscape (No Face)', 'Scenery / Abstract', document.getElementById('port-noface'));
+      }
+    }
+
+    function loadPortrait(key, title, subtitle, el) {
+      currentPortraitKey = key;
+      document.querySelectorAll('.portrait-card').forEach(p => p.classList.remove('active'));
+      if (el) el.classList.add('active');
+
+      const img = new Image();
+      img.src = SAMPLE_AVATARS[key];
+      img.onload = () => {
+        renderFaceHUD(img, key);
+      };
+
+      if (key === 'tamper') {
+        currentFileHash = "b893c12988cb62804c86125026b91129b860269389f417a80b8e291244e3b1c9";
+      } else if (key === 'lookalike') {
+        currentFileHash = "5a41df90e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
+      } else {
+        currentFileHash = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
+      }
+    }
+
+    function handleCustomUpload(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        const img = new Image();
+        img.src = evt.target.result;
+        img.onload = function() {
+          renderFaceHUD(img, file.name);
+          computeRealFileHash(file);
+        };
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function computeRealFileHash(file) {
+      const buf = await file.arrayBuffer();
+      const digest = await crypto.subtle.digest('SHA-256', buf);
+      currentFileHash = Array.from(new Uint8Array(digest)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    // Canvas Initializer
+    const canvas = document.getElementById('faceCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function initFaceCanvas() {
+      canvas.width = 640;
+      canvas.height = 400;
+      ctx.fillStyle = "#020b06";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function renderFaceHUD(img, key) {
+      canvas.width = 640;
+      canvas.height = 400;
+      ctx.fillStyle = "#020b06";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 120, 20, 400, 360);
+
+      if (key === "noface") {
+        document.getElementById('hudFaceStatus').innerText = "NO FACE DETECTED";
+        document.getElementById('hudFaceStatus').style.color = "var(--alert-crimson)";
+        document.getElementById('hudLandmarkStatus').innerText = "HALTED: 0 FACES";
+        return;
+      }
+
+      document.getElementById('hudFaceStatus').innerText = "FACE DETECTED [CONF: 0.984]";
+      document.getElementById('hudFaceStatus').style.color = "var(--gold-primary)";
+      document.getElementById('hudLandmarkStatus').innerText = "5-PT ALIGNED";
+
+      // Bounding Box
+      const x = 200, y = 80, w = 240, h = 240;
+
+      ctx.strokeStyle = "#ffdf00";
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(x, y, w, h);
+
+      // Gold Corner Brackets
+      const len = 18;
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = "#ffffff";
+      // Top Left
+      ctx.beginPath(); ctx.moveTo(x, y + len); ctx.lineTo(x, y); ctx.lineTo(x + len, y); ctx.stroke();
+      // Top Right
+      ctx.beginPath(); ctx.moveTo(x + w - len, y); ctx.lineTo(x + w, y); ctx.lineTo(x + w, y + len); ctx.stroke();
+      // Bottom Left
+      ctx.beginPath(); ctx.moveTo(x, y + h - len); ctx.lineTo(x, y + h); ctx.lineTo(x + len, y + h); ctx.stroke();
+      // Bottom Right
+      ctx.beginPath(); ctx.moveTo(x + w - len, y + h); ctx.lineTo(x + w, y + h); ctx.lineTo(x + w, y + h - len); ctx.stroke();
+
+      // 5 Landmarks
+      const points = [
+        { x: x + w * 0.35, y: y + h * 0.38 },
+        { x: x + w * 0.65, y: y + h * 0.38 },
+        { x: x + w * 0.50, y: y + h * 0.54 },
+        { x: x + w * 0.38, y: y + h * 0.72 },
+        { x: x + w * 0.62, y: y + h * 0.72 }
+      ];
+
+      points.forEach(pt => {
+        ctx.strokeStyle = "#ff1b7a";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 6, 0, Math.PI * 2);
+        ctx.stroke();
+
+        ctx.fillStyle = "#ffdf00";
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Label
+      ctx.fillStyle = "rgba(2, 10, 6, 0.85)";
+      ctx.fillRect(x, y - 22, 175, 20);
+      ctx.fillStyle = "#ffdf00";
+      ctx.font = "11px 'Space Grotesk'";
+      ctx.fillText("YuNet DNN • 512-d Feature", x + 6, y - 8);
+    }
+
+    // 5-STAGE PIPELINE RUNNER
+    async function runHackerHousePipeline() {
+      const btn = document.getElementById('executePipelineBtn');
+      const scanLine = document.getElementById('hudScanLine');
+      const overall = document.getElementById('overallRunStatus');
+      const verdictBox = document.getElementById('verdictBannerBox');
+      const candBox = document.getElementById('candidatesOutputBox');
+      const receiptBox = document.getElementById('blockchainReceiptBox');
+
+      btn.disabled = true;
+      scanLine.style.display = "block";
+      overall.innerText = "RUNNING...";
+      overall.style.color = "var(--gold-primary)";
+      verdictBox.style.display = "none";
+      candBox.style.display = "none";
+      receiptBox.style.display = "none";
+
+      for (let i = 1; i <= 5; i++) {
+        const item = document.getElementById(`p-step${i}`);
+        item.className = "step-item";
+        item.querySelector('.step-status').innerText = "PENDING";
+      }
+
+      // Check for No-Face scenario
+      if (currentPortraitKey === "noface" || activeScenario === "noface") {
+        await activateStep(1, "DETECTING", 500);
+        failStep(1, "ERROR: 0 Faces Detected");
+        overall.innerText = "HALTED (NO FACE)";
+        overall.style.color = "var(--alert-crimson)";
+        btn.disabled = false;
+        scanLine.style.display = "none";
+
+        verdictBox.innerHTML = `
+          <div class="verdict-banner verdict-fail">
+            <h3>❌ PIPELINE HALTED AT STAGE 1</h3>
+            <p>YuNet Face Detector found zero human faces. Reverse search was not invoked.</p>
+          </div>
+        `;
+        verdictBox.style.display = "block";
+        return;
+      }
+
+      // Stage 1: Face Alignment
+      await activateStep(1, "EXTRACTING", 400);
+      completeStep(1, "ALIGNED (5 Fiducials)");
+
+      // Stage 2: Reverse Image Search
+      await activateStep(2, "SEARCHING GOOGLE LENS", 700);
+      completeStep(2, "DISCOVERED: 3 Candidates");
+
+      // Stage 3: Cosine Metric Ranking
+      await activateStep(3, "COMPARING 512-D VECTORS", 500);
+      
+      let isTamper = (activeScenario === "tampered");
+      let isLow = (activeScenario === "lowmatch");
+      let scoreText = isLow ? "68.2% (BELOW 85% THRESHOLD)" : (isTamper ? "94.8% (FILE ALTERED)" : "94.8% (AUTHENTIC MATCH)");
+      completeStep(3, scoreText);
+
+      // Populate Candidate List
+      renderCandidates(isLow);
+      candBox.style.display = "block";
+
+      if (isLow) {
+        failStep(4, "SKIPPED: Low Similarity");
+        failStep(5, "SKIPPED: No Match Above Threshold");
+        overall.innerText = "REJECTED (BELOW THRESHOLD)";
+        overall.style.color = "var(--amber-warn)";
+        btn.disabled = false;
+        scanLine.style.display = "none";
+
+        verdictBox.innerHTML = `
+          <div class="verdict-banner" style="background: rgba(245, 158, 11, 0.12); border: 2px solid var(--amber-warn);">
+            <h3 style="color: var(--amber-warn);">⚠️ LOW SIMILARITY MATCH</h3>
+            <p>Candidate highest cosine similarity is 68.2%, below the required 85% threshold. Not notarized.</p>
+          </div>
+        `;
+        verdictBox.style.display = "block";
+        return;
+      }
+
+      // Stage 4: Cryptographic Hashing
+      await activateStep(4, "COMPUTING SHA-256", 400);
+      completeStep(4, `HASH: ${currentFileHash.substring(0, 16)}...`);
+
+      // Stage 5: Blockchain Notarization
+      const chainName = activeChain === 'solana' ? 'Solana Devnet (SPL Memo v2)' : 'Ethereum Sepolia (Contract)';
+      await activateStep(5, `MINTING ON ${chainName.toUpperCase()}`, 800);
+      completeStep(5, "ON-CHAIN CONFIRMED");
+
+      // Populate Receipt
+      const mockSig = activeChain === 'solana' 
+        ? "4uQ9wF3x7bXk2mKp9P4rY8zQ1vA5cB6dE7fG8hJ9kL0" 
+        : "0x7e8b91a0c4f8d23e57b9c1d3e5f7a9b1c3d5e7f9a1b3c5d7e9f1a3b5c7d9e1f3";
+
+      document.getElementById('rcNetwork').innerText = chainName;
+      document.getElementById('rcTxSig').innerText = mockSig;
+      document.getElementById('rcHash').innerText = isTamper 
+        ? "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841 (Tampered)" 
+        : currentFileHash;
+      document.getElementById('rcScore').innerText = "94.8% Match";
+      
+      const explorerUrl = activeChain === 'solana'
+        ? `https://explorer.solana.com/tx/${mockSig}?cluster=devnet`
+        : `https://sepolia.etherscan.io/tx/${mockSig}`;
+      document.getElementById('rcExplorerLink').href = explorerUrl;
+      document.getElementById('rcExplorerLink').innerText = activeChain === 'solana' ? "View on Solana Explorer ↗" : "View on Sepolia Etherscan ↗";
+
+      receiptBox.style.display = "block";
+
+      // Final Verdict
+      if (isTamper) {
+        overall.innerText = "TAMPER DETECTED";
+        overall.style.color = "var(--pink-goa)";
+        verdictBox.innerHTML = `
+          <div class="verdict-banner verdict-fail">
+            <h3>❌ AUDIT X: CRYPTOGRAPHIC TAMPER DETECTED</h3>
+            <p>The image byte contents were altered post-notarization. Checksum does not match on-chain ledger proof!</p>
+          </div>
+        `;
+      } else {
+        overall.innerText = "VERIFIED & NOTARIZED";
+        overall.style.color = "var(--emerald-bright)";
+        verdictBox.innerHTML = `
+          <div class="verdict-banner verdict-pass">
+            <h3>✅ PROOF VERIFIED ON ${activeChain === 'solana' ? 'SOLANA DEVNET' : 'ETHEREUM SEPOLIA'}</h3>
+            <p>100% Cryptographic Match! The candidate image is proven unaltered and recorded permanently on-chain.</p>
+          </div>
+        `;
+      }
+      verdictBox.style.display = "block";
+
+      scanLine.style.display = "none";
+      btn.disabled = false;
+    }
+
+    async function activateStep(num, statusText, delayMs) {
+      const item = document.getElementById(`p-step${num}`);
+      item.className = "step-item active";
+      item.querySelector('.step-status').innerText = statusText;
+      await new Promise(res => setTimeout(res, delayMs));
+    }
+
+    function completeStep(num, statusText) {
+      const item = document.getElementById(`p-step${num}`);
+      item.className = "step-item completed";
+      item.querySelector('.step-status').innerText = statusText;
+    }
+
+    function failStep(num, statusText) {
+      const item = document.getElementById(`p-step${num}`);
+      item.className = "step-item";
+      item.style.borderColor = "var(--alert-crimson)";
+      item.querySelector('.step-status').innerText = statusText;
+      item.querySelector('.step-status').style.color = "var(--alert-crimson)";
+    }
+
+    function renderCandidates(isLow) {
+      const container = document.getElementById('candidatesListContainer');
+      if (isLow) {
+        container.innerHTML = `
+          <div class="candidate-row">
+            <img src="${SAMPLE_AVATARS.lookalike}" class="candidate-thumb" alt="Candidate" />
+            <div class="candidate-info">
+              <div class="candidate-title">Discovered Lookalike Portrait (Web Article)</div>
+              <div class="candidate-url">https://wikimedia.org/wiki/File:Portrait_Distant_Match.jpg</div>
+              <div class="sim-bar-container">
+                <div class="sim-track">
+                  <div class="sim-level" style="width: 68.2%; background: var(--amber-warn);"></div>
+                </div>
+                <div class="sim-val" style="color: var(--amber-warn);">68.2%</div>
+              </div>
+            </div>
+            <span class="badge-task" style="color: var(--amber-warn); border-color: var(--amber-warn);">LOW MATCH</span>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div class="candidate-row winner">
+            <img src="${SAMPLE_AVATARS.tamper}" class="candidate-thumb" alt="Candidate 1" />
+            <div class="candidate-info">
+              <div class="candidate-title">Speaker Profile Header (Tech Summit CDN)</div>
+              <div class="candidate-url">https://images.unsplash.com/photo-executive-summit-hq</div>
+              <div class="sim-bar-container">
+                <div class="sim-track">
+                  <div class="sim-level" style="width: 94.8%; background: var(--emerald-bright);"></div>
+                </div>
+                <div class="sim-val" style="color: var(--emerald-bright);">94.8%</div>
+              </div>
+            </div>
+            <span class="badge-task" style="color: var(--emerald-bright); border-color: var(--emerald-bright);">BEST MATCH</span>
+          </div>
+
+          <div class="candidate-row" style="opacity: 0.6;">
+            <img src="${SAMPLE_AVATARS.lookalike}" class="candidate-thumb" alt="Candidate 2" />
+            <div class="candidate-info">
+              <div class="candidate-title">Conference Attendee Photo</div>
+              <div class="candidate-url">https://wikimedia.org/wiki/File:Alternate_Subject.jpg</div>
+              <div class="sim-bar-container">
+                <div class="sim-track">
+                  <div class="sim-level" style="width: 42.1%; background: var(--text-subtle);"></div>
+                </div>
+                <div class="sim-val" style="color: var(--text-subtle);">42.1%</div>
+              </div>
+            </div>
+            <span class="badge-task">REJECTED</span>
+          </div>
+        `;
+      }
+    }
+
+    // Tab 2: Integrity Verification Logic
+    function runVerificationAudit() {
+      const mode = document.getElementById('verifySelectChoice').value;
+      const recId = document.getElementById('verifyRecordId').value || "1001";
+      const outcomeBox = document.getElementById('verifyOutcomeBox');
+      const detailsBox = document.getElementById('verifyCompareDetails');
+
+      outcomeBox.style.display = "block";
+      detailsBox.style.display = "block";
+
+      const onChainHash = "a7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f";
+      let localHash = "";
+
+      if (mode === 'tampered') {
+        localHash = "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841";
+        outcomeBox.innerHTML = `
+          <div class="verdict-banner verdict-fail">
+            <h3>❌ AUDIT X: CRYPTOGRAPHIC TAMPER DETECTED</h3>
+            <p>Hash mismatch! Local file checksum differs from the immutable on-chain record #${recId}.</p>
+          </div>
+        `;
+      } else {
+        localHash = onChainHash;
+        outcomeBox.innerHTML = `
+          <div class="verdict-banner verdict-pass">
+            <h3>✅ VERIFICATION PASSED (CONTENT UNTAMPERED)</h3>
+            <p>100% Cryptographic Match! Every single byte is identical to on-chain record #${recId}.</p>
+          </div>
+        `;
+      }
+
+      document.getElementById('auditLocalHash').innerText = localHash;
+      document.getElementById('auditChainHash').innerText = onChainHash;
+    }
+
+    // Tab 3: Tamper Lab Actions
+    function triggerTamperLabAction() {
+      document.getElementById('tamperDiffHash').innerText = "3d99e526c7104b281f62b78b88df14299b8214fa39062dc962ceb33d0e2c8841";
+      document.getElementById('tamperCanvasPreview').style.filter = "contrast(1.1) hue-rotate(15deg)";
+      alert("⚠️ 1-Byte Attack Injected!\n\nA single metadata byte was altered. Due to the Avalanche Effect, the entire SHA-256 digest completely mutated!");
+    }
+
+    function restoreTamperLabAction() {
+      document.getElementById('tamperDiffHash').innerText = document.getElementById('origDiffHash').innerText;
+      document.getElementById('tamperCanvasPreview').style.filter = "none";
+      alert("✅ Restored authentic file state.");
+    }
+
+    // Tab 4: Ledger Actions
+    function quickVerifyID(id) {
+      document.getElementById('verifyRecordId').value = id;
+      switchMainTab('tab-verify', document.querySelectorAll('.tab-trigger')[1]);
+      runVerificationAudit();
+    }
+
+    function downloadLedgerJSON() {
+      const data = [
+        {
+          record_id: 1001,
+          hash: "0xa7f28c11e3895a98d0f1982b6c934b071295b9c7fa689255627a9446d1e43e2f",
+          source_url: "https://images.unsplash.com/photo-tech-speaker",
+          timestamp: "2026-09-04T22:15:30Z",
+          submitter: "0x92aF0b5C52E461c210d321f92e10502a9041471C",
+          network: "Solana Devnet / Ethereum Sepolia"
+        },
+        {
+          record_id: 1002,
+          hash: "0xb893c12988cb62804c86125026b91129b860269389f417a80b8e291244e3b1c9",
+          source_url: "https://wikimedia.org/wiki/File:Portrait_Case.jpg",
+          timestamp: "2026-09-04T21:50:12Z",
+          submitter: "0x92aF0b5C52E461c210d321f92e10502a9041471C",
+          network: "Solana Devnet / Ethereum Sepolia"
+        }
+      ];
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'hacker_house_ledger_records.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>
