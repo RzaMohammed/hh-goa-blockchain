@@ -636,10 +636,11 @@ export default function BiometricViewport({
             value={platform}
             onChange={(e) => setPlatform && setPlatform(e.target.value)}
           >
-            <option value="all">Instagram + GitHub + LinkedIn (All Social)</option>
-            <option value="github">GitHub Profiles (github.com)</option>
-            <option value="linkedin">LinkedIn Profiles (linkedin.com)</option>
+            <option value="all">All Web & Social (Google, Instagram, LinkedIn, GitHub)</option>
+            <option value="google">Google Web Profiles (google.com)</option>
             <option value="instagram">Instagram Profiles (instagram.com)</option>
+            <option value="linkedin">LinkedIn Profiles (linkedin.com)</option>
+            <option value="github">GitHub Profiles (github.com)</option>
           </select>
         </div>
 

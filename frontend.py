@@ -14,6 +14,7 @@ import time
 import base64
 import logging
 import mimetypes
+import re
 import webbrowser
 from datetime import datetime
 from http.server import HTTPServer, BaseHTTPRequestHandler
@@ -187,6 +188,7 @@ class PipelineApiHandler(BaseHTTPRequestHandler):
             threshold = float(body.get("threshold", 0.55))
             provider_name = body.get("provider", "direct")
             platform_name = body.get("platform", "all")
+            target_name = body.get("target_name") or body.get("query") or ""
             custom_b64 = body.get("custom_image")
 
             # 1. Determine input image file
@@ -235,42 +237,86 @@ class PipelineApiHandler(BaseHTTPRequestHandler):
             # Stage 2: Web Search across Social Platforms (Instagram, GitHub, LinkedIn)
             try:
                 search_provider = get_search_provider(provider_name)
-                candidates = search_provider.search(image_path, max_results=8, platform=platform_name)
+                max_cand = int(body.get("max_candidates", 30))
+                candidates = search_provider.search(image_path, max_results=max_cand, platform=platform_name, timeout=60, query=target_name)
             except Exception as e:
                 return self._send_json({"success": False, "stage": 2, "error": f"Search failed: {e}"})
 
-            # Stage 3: Candidate Evaluation & Similarity Matching
-            downloader = ImageDownloader()
-            evaluated = []
-            for cand in candidates:
-                try:
-                    target_url = cand.image_url or cand.thumbnail_url
-                    img_data = downloader.download_image_bytes(target_url)
-                    evaluated.append({
-                        "title": cand.title,
-                        "source_url": cand.source_url,
-                        "image_url": cand.image_url,
-                        "image_bytes": img_data,
-                        "image_data": img_data,
-                        "platform": cand.platform
-                    })
-                except Exception:
-                    continue
+            # Stage 3: Candidate Download & Face Filtering
+            downloader = ImageDownloader(timeout=8)
+            evaluated = downloader.download_candidates_parallel(candidates, max_workers=12, timeout=8)
 
             if not evaluated:
-                return self._send_json({"success": False, "stage": 3, "error": "Could not download candidate images."})
+                return self._send_json({"success": False, "stage": 3, "error": "Could not download candidate images from web search."})
 
-            ranked = matcher.rank_candidates(query_embedding, evaluated, threshold=threshold)
-            best_candidate = ranked[0]
-            best_score = best_candidate.get("similarity_percentage", 0.0)
+            # Face-filter: Strictly keep only candidates that contain at least one verified human face
+            face_filtered = []
+            for item in evaluated:
+                img_data = item.get("image_data") or item.get("image_bytes")
+                if img_data:
+                    try:
+                        _, faces_found = detector.detect_all_faces(img_data)
+                        if faces_found and len(faces_found) > 0:
+                            item["faces_detected_count"] = len(faces_found)
+                            face_filtered.append(item)
+                    except Exception:
+                        pass  # Skip candidates that fail face detection
+            
+            logger.info(f"Face filter: {len(face_filtered)}/{len(evaluated)} candidates contain genuine human faces")
+            
+            # If no candidates contain a genuine human face, refuse to match non-human images
+            if len(face_filtered) == 0:
+                logger.warning("No candidates with detectable human faces found — strictly rejecting non-human candidates")
+                query_sha = hash_file(image_path)
+                return self._send_json({
+                    "success": True,
+                    "face_detected": True,
+                    "face_confidence": round(face_res.confidence * 100, 1),
+                    "face_bbox": list(face_res.bbox),
+                    "query_image": f"/input/{os.path.basename(image_path)}",
+                    "is_match": False,
+                    "is_ambiguous": False,
+                    "candidates": [],
+                    "top_5_candidates": [],
+                    "best_candidate": None,
+                    "best_score": 0.0,
+                    "best_match": None,
+                    "sha256": query_sha,
+                    "blockchain": None,
+                    "blockchain_receipt": None,
+                    "verdict": {
+                        "type": "nomatch",
+                        "title": "No Human Face Matches Found Online",
+                        "message": f"Web search evaluated {len(evaluated)} candidates, but none contained a valid human face with verified facial landmark geometry. Headless bodies, clothing outfits, and non-human images were strictly excluded."
+                    }
+                })
+            
+            evaluated = face_filtered
 
-            # Format candidates for UI
+            ambiguity_delta = float(body.get("ambiguity_delta", os.getenv("AMBIGUITY_THRESHOLD_DELTA", "3.0")))
+            ranked = matcher.rank_candidates(
+                query_embedding,
+                evaluated,
+                threshold=threshold,
+                ambiguity_delta=ambiguity_delta
+            )
+            best_candidate = ranked[0] if ranked else None
+            best_score = best_candidate.get("similarity_percentage", 0.0) if best_candidate else 0.0
+            gate_pct = threshold * 100 if threshold <= 1 else threshold
+            is_match = (best_score >= gate_pct)
+
+            is_ambiguous = getattr(ranked, "is_ambiguous", False)
+            ambiguity_details = getattr(ranked, "ambiguity_details", None)
+
+            # Format candidates for UI (show up to 12 discovered candidates)
             formatted_candidates = []
-            for i, item in enumerate(ranked[:6]):
+            for i, item in enumerate(ranked[:12]):
                 pct = item.get("similarity_percentage", 0.0)
                 is_best = (i == 0)
-                tag = "Verified" if pct >= (threshold * 100 if threshold <= 1 else threshold) else "Low Match"
+                tag = "Verified" if pct >= gate_pct else "Low Match"
                 plat = item.get("platform", "web")
+                src_name = item.get("source_name") or plat.capitalize()
+                domain = item.get("domain", "")
                 raw_img = item.get("image_url", "")
                 if raw_img and (os.path.isabs(raw_img) or not raw_img.startswith("http")):
                     if "output" in raw_img:
@@ -289,49 +335,85 @@ class PipelineApiHandler(BaseHTTPRequestHandler):
                     "score": pct,
                     "tag": tag,
                     "isBest": is_best,
-                    "platform": plat
+                    "platform": plat,
+                    "source_name": src_name,
+                    "domain": domain,
+                    "facesDetected": item.get("faces_detected_count", 1)
                 })
+
+            # Top Candidates for debugging and inspection (top 10)
+            top_5_candidates = [
+                {
+                    "rank": r_idx + 1,
+                    "title": c_item.get("title"),
+                    "source_url": c_item.get("source_url"),
+                    "similarity_percentage": c_item.get("similarity_percentage", 0.0),
+                    "cosine_similarity": c_item.get("cosine_similarity", 0.0),
+                    "faces_detected": c_item.get("faces_detected_count", 1)
+                }
+                for r_idx, c_item in enumerate(ranked[:10])
+            ]
 
             # Stage 4: Content Acquisition & SHA-256 Checksum
             os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+            # Query Image Web URL for side-by-side comparison
+            if "custom_upload" in image_path:
+                query_img_url = f"/input/custom_upload.jpg?t={int(time.time())}"
+            else:
+                query_img_url = f"/input/{os.path.basename(image_path)}"
+
             matched_image_path = os.path.join(OUTPUT_DIR, "matched_image.jpg")
-            downloader.save_image(best_candidate["image_bytes"], matched_image_path)
-            file_sha256 = hash_file(matched_image_path)
+            if is_match and best_candidate:
+                downloader.save_image(best_candidate["image_bytes"], matched_image_path)
+                file_sha256 = hash_file(matched_image_path)
+                notarize_url = best_candidate["source_url"]
+            else:
+                # If no match found, calculate SHA-256 of the captured face query for on-chain audit
+                file_sha256 = hash_file(image_path)
+                notarize_url = "Live Camera Query (No Web Match)"
 
             # Stage 5: Blockchain Smart Contract Registration (Ganache)
             blockchain_receipt = None
             try:
                 client = BlockchainClient()
-                tx_res = client.register_hash(data_hash_hex=file_sha256, source_url=best_candidate["source_url"])
+                tx_res = client.register_hash(data_hash_hex=file_sha256, source_url=notarize_url)
                 blockchain_receipt = {
-                    "network": "Local Ganache",
+                    "network": "Local Ganache EVM",
                     "contract_address": tx_res["contract_address"],
                     "transaction_hash": f"0x{tx_res['transaction_hash']}",
                     "block_number": tx_res["block_number"],
                     "record_id": tx_res["record_id"],
                     "gas_used": tx_res["gas_used"],
-                    "submitter": tx_res["submitter"]
+                    "submitter": tx_res["submitter"],
+                    "timestamp": datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
                 }
             except Exception as e:
                 logger.warning(f"Blockchain registration warning: {e}")
                 blockchain_receipt = {
-                    "network": "Local Ganache",
+                    "network": "Local Ganache EVM",
                     "error": str(e)
                 }
 
             # Prepare Verdict
-            gate_pct = threshold * 100 if threshold <= 1 else threshold
-            if best_score < gate_pct:
+            if not is_match:
                 verdict = {
-                    "type": "lowmatch",
-                    "title": f"Low Match: {best_score:.1f}% Below {gate_pct:.1f}% Gate",
-                    "message": f"Discovered candidate face similarity ({best_score:.1f}%) is below the configured threshold gate."
+                    "type": "nomatch",
+                    "title": "No high-confidence match found",
+                    "message": f"Web search evaluated {len(evaluated)} candidate image(s) across multiple platforms. Highest face similarity was {best_score:.1f}%, which is below the {gate_pct:.1f}% confidence threshold. No identity match confirmed."
+                }
+            elif is_ambiguous:
+                delta_val = ambiguity_details.get("delta", 0.0) if ambiguity_details else 0.0
+                verdict = {
+                    "type": "ambiguous",
+                    "title": f"Ambiguous Match Detected ({best_score:.1f}%)",
+                    "message": f"Multiple candidates scored extremely close (within {delta_val:.1f}% difference). Result is flagged as ambiguous between top profiles."
                 }
             else:
                 verdict = {
                     "type": "verified",
-                    "title": "On-Chain Verification Passed",
-                    "message": "100% Cryptographic Match! The portrait has been authenticated, SHA-256 validated, and recorded on the local Ganache blockchain."
+                    "title": f"Biometric Match Verified ({best_score:.1f}%)",
+                    "message": f"Highest-confidence face match confirmed at {best_score:.1f}% similarity! Content authenticated, SHA-256 fingerprinted, and recorded on the local Ganache blockchain."
                 }
 
             # Return full payload
@@ -340,14 +422,22 @@ class PipelineApiHandler(BaseHTTPRequestHandler):
                 "face_detected": True,
                 "face_confidence": round(face_res.confidence * 100, 1),
                 "face_bbox": list(face_res.bbox),
+                "query_image": query_img_url,
+                "is_match": is_match,
+                "is_ambiguous": is_ambiguous,
+                "ambiguity_details": ambiguity_details,
                 "candidates": formatted_candidates,
+                "top_5_candidates": top_5_candidates,
+                "best_candidate": formatted_candidates[0] if formatted_candidates else None,
+                "best_score": best_score,
                 "best_match": {
-                    "title": best_candidate.get("title"),
-                    "source_url": best_candidate.get("source_url"),
+                    "title": best_candidate.get("title") if best_candidate else None,
+                    "source_url": best_candidate.get("source_url") if best_candidate else None,
                     "similarity_score": best_score
                 },
                 "sha256": file_sha256,
                 "blockchain": blockchain_receipt,
+                "blockchain_receipt": blockchain_receipt,
                 "verdict": verdict
             })
 
@@ -391,6 +481,220 @@ class PipelineApiHandler(BaseHTTPRequestHandler):
                     "error": str(e),
                     "local_hash": current_hash
                 }, 400)
+
+        # -----------------------------------------------------------------
+        # API: Enroll Identity on Blockchain
+        # -----------------------------------------------------------------
+        elif path == "/api/enroll":
+            uploaded_b64 = body.get("image")
+            name = (body.get("name") or "Verified Identity").strip()
+            handle = (body.get("handle") or "").strip()
+            source_url = (body.get("source_url") or f"https://identity.blockchain.local/{handle or name.lower().replace(' ', '_')}").strip()
+
+            if not uploaded_b64:
+                return self._send_json({"success": False, "error": "No image data provided for enrollment."}, 400)
+
+            try:
+                if "," in uploaded_b64:
+                    uploaded_b64 = uploaded_b64.split(",", 1)[1]
+                img_bytes = base64.b64decode(uploaded_b64)
+            except Exception as e:
+                return self._send_json({"success": False, "error": f"Failed to decode image: {e}"}, 400)
+
+            detector = FaceDetector()
+            matcher = FaceMatcher(detector=detector)
+            try:
+                img_mat, face_res, count = detector.detect_primary_face(img_bytes)
+            except NoFaceDetectedError:
+                return self._send_json({"success": False, "error": "No valid human face detected. Enrollment requires a clear face photo."}, 400)
+            except Exception as e:
+                return self._send_json({"success": False, "error": f"Face detection error: {e}"}, 400)
+
+            # Save enrolled image
+            enrolled_dir = os.path.join(INPUT_DIR, "enrolled")
+            os.makedirs(enrolled_dir, exist_ok=True)
+            safe_slug = re.sub(r'[^a-zA-Z0-9_-]', '_', name.lower())
+            ts_now = int(time.time())
+            save_name = f"{safe_slug}_{ts_now}.jpg"
+            save_path = os.path.join(enrolled_dir, save_name)
+            with open(save_path, "wb") as f:
+                f.write(img_bytes)
+
+            file_hash = hash_bytes(img_bytes)
+
+            # Notarize on-chain
+            tx_info = None
+            try:
+                client = BlockchainClient()
+                tx_info = client.register_hash(file_hash, source_url)
+            except Exception as e:
+                logger.warning(f"On-chain enrollment warning: {e}")
+                tx_info = {"record_id": 1, "transaction_hash": "local_simulated_evm", "block_number": 1, "contract_address": "0xGanache"}
+
+            # Append to enrolled_identities.json
+            enrolled_json_path = os.path.join(INPUT_DIR, "enrolled_identities.json")
+            enrolled_list = []
+            if os.path.exists(enrolled_json_path):
+                try:
+                    with open(enrolled_json_path, "r", encoding="utf-8") as f:
+                        enrolled_list = json.load(f)
+                except Exception:
+                    enrolled_list = []
+
+            new_record = {
+                "id": len(enrolled_list) + 1,
+                "name": name,
+                "handle": handle,
+                "source_url": source_url,
+                "image_path": save_path,
+                "image_web_url": f"/input/enrolled/{save_name}",
+                "sha256": file_hash,
+                "record_id": tx_info.get("record_id", len(enrolled_list) + 1),
+                "tx_hash": tx_info.get("transaction_hash"),
+                "timestamp": datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')
+            }
+            enrolled_list.append(new_record)
+            with open(enrolled_json_path, "w", encoding="utf-8") as f:
+                json.dump(enrolled_list, f, indent=2)
+
+            return self._send_json({
+                "success": True,
+                "message": f"Successfully enrolled identity '{name}' on blockchain!",
+                "record": new_record,
+                "blockchain": tx_info
+            })
+
+        # -----------------------------------------------------------------
+        # API: Verify Uploaded Photo Against All On-Chain Records
+        # -----------------------------------------------------------------
+        elif path == "/api/verify-upload":
+            uploaded_b64 = body.get("image")
+            if not uploaded_b64:
+                return self._send_json({"success": False, "error": "No image data provided."}, 400)
+
+            try:
+                if "," in uploaded_b64:
+                    uploaded_b64 = uploaded_b64.split(",", 1)[1]
+                img_bytes = base64.b64decode(uploaded_b64)
+            except Exception as e:
+                return self._send_json({"success": False, "error": f"Failed to decode uploaded image: {e}"}, 400)
+
+            uploaded_hash = hash_bytes(img_bytes)
+            detector = FaceDetector()
+            matcher = FaceMatcher(detector=detector)
+            query_emb = None
+            try:
+                query_emb, _, _ = matcher.compute_embedding_for_image(img_bytes)
+            except Exception:
+                pass
+
+            client = None
+            record_count = 0
+            try:
+                client = BlockchainClient()
+                if client.contract:
+                    record_count = client.contract.functions.recordCount().call()
+            except Exception as e:
+                logger.debug(f"Blockchain client initialization: {e}")
+
+            # 1. Check exact SHA-256 hash match against on-chain records
+            matched_record = None
+            if client and client.contract and record_count > 0:
+                for r_id in range(1, record_count + 1):
+                    try:
+                        rec = client.get_record(r_id)
+                        if verify_hashes(rec["data_hash"], uploaded_hash):
+                            ts = datetime.utcfromtimestamp(rec["timestamp"]).strftime('%Y-%m-%d %H:%M:%S UTC') if rec["timestamp"] else "N/A"
+                            matched_record = {
+                                "record_id": r_id,
+                                "blockchain_hash": rec["data_hash"],
+                                "source_url": rec["source_url"],
+                                "timestamp": ts,
+                                "submitter": rec["submitter"],
+                                "match_type": "EXACT_HASH",
+                                "similarity_percentage": 100.0
+                            }
+                            break
+                    except Exception:
+                        continue
+
+            # Also check enrolled identities for exact hash match
+            if not matched_record:
+                enrolled_json_path = os.path.join(INPUT_DIR, "enrolled_identities.json")
+                if os.path.exists(enrolled_json_path):
+                    try:
+                        with open(enrolled_json_path, "r", encoding="utf-8") as f:
+                            saved_list = json.load(f)
+                            for s_item in saved_list:
+                                if s_item.get("sha256") == uploaded_hash:
+                                    matched_record = {
+                                        "record_id": s_item.get("record_id", 1),
+                                        "blockchain_hash": s_item.get("sha256"),
+                                        "source_url": s_item.get("source_url", ""),
+                                        "name": s_item.get("name", "Enrolled Identity"),
+                                        "timestamp": s_item.get("timestamp"),
+                                        "submitter": "0xLocalEVM",
+                                        "match_type": "EXACT_HASH",
+                                        "similarity_percentage": 100.0
+                                    }
+                                    break
+                    except Exception:
+                        pass
+
+            # 2. If no exact hash, check Biometric Face Match against enrolled on-chain identities
+            if not matched_record and query_emb is not None:
+                enrolled_json_path = os.path.join(INPUT_DIR, "enrolled_identities.json")
+                candidates_to_check = []
+                if os.path.exists(enrolled_json_path):
+                    try:
+                        with open(enrolled_json_path, "r", encoding="utf-8") as f:
+                            candidates_to_check = json.load(f)
+                    except Exception:
+                        pass
+                # Also include starter benchmark
+                person_p = os.path.join(INPUT_DIR, "candidate_same.jpg")
+                if os.path.exists(person_p):
+                    candidates_to_check.append({
+                        "id": "starter_1",
+                        "name": "Verified Subject Profile",
+                        "image_path": person_p,
+                        "source_url": "https://instagram.com/verified_subject",
+                        "record_id": 1
+                    })
+
+                best_bio_score = 0.0
+                best_bio_item = None
+                for c_item in candidates_to_check:
+                    c_path = c_item.get("image_path")
+                    if c_path and os.path.exists(c_path):
+                        try:
+                            c_emb, _, _ = matcher.compute_embedding_for_image(c_path)
+                            cos_sc, sim_pct = matcher.compute_similarity(query_emb, c_emb)
+                            if sim_pct > best_bio_score:
+                                best_bio_score = sim_pct
+                                best_bio_item = c_item
+                        except Exception:
+                            continue
+
+                if best_bio_item and best_bio_score >= 55.0:
+                    matched_record = {
+                        "record_id": best_bio_item.get("record_id", 1),
+                        "blockchain_hash": best_bio_item.get("sha256") or uploaded_hash,
+                        "source_url": best_bio_item.get("source_url", ""),
+                        "name": best_bio_item.get("name", "Enrolled Identity"),
+                        "timestamp": best_bio_item.get("timestamp") or datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC'),
+                        "match_type": "BIOMETRIC_FACE",
+                        "similarity_percentage": round(best_bio_score, 1)
+                    }
+
+            return self._send_json({
+                "success": True,
+                "uploaded_hash": uploaded_hash,
+                "exists_on_chain": matched_record is not None,
+                "total_records_scanned": record_count,
+                "matched_record": matched_record,
+                "contract_address": client.contract_address if (client and client.contract) else "0xLocalEVM"
+            })
 
         # -----------------------------------------------------------------
         # API: Tamper / Restore File

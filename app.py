@@ -64,8 +64,8 @@ def parse_args():
         "--max-candidates",
         "-m",
         type=int,
-        default=10,
-        help="Maximum candidate results to discover and evaluate (default: 10)"
+        default=25,
+        help="Maximum candidate results to discover and evaluate (default: 25)"
     )
     parser.add_argument(
         "--output-dir",
@@ -85,6 +85,17 @@ def parse_args():
         default="all",
         help="Target social platform to search (choices: all, instagram, github, linkedin; default: all)"
     )
+    parser.add_argument(
+        "--local-evm",
+        action="store_true",
+        help="Use in-memory local EVM (useful for testing without Ganache)"
+    )
+    parser.add_argument(
+        "--ambiguity-delta",
+        type=float,
+        default=float(os.getenv("AMBIGUITY_THRESHOLD_DELTA", "3.0")),
+        help="Delta percentage between top-2 candidates to flag result as ambiguous (default: 3.0)"
+    )
     return parser.parse_args()
 
 
@@ -95,82 +106,75 @@ def print_banner():
     print("=" * 60)
 
 
-def run_pipeline():
+def main():
     args = parse_args()
     print_banner()
 
     # -------------------------------------------------------------
-    # [1] INPUT VALIDATION
+    # [1] LOAD & VALIDATE INPUT IMAGE
     # -------------------------------------------------------------
-    print("\n[1] INPUT")
-    image_path = os.path.abspath(args.image)
-    print(f"Image: {args.image}")
-
-    if not os.path.exists(image_path):
-        print(f"\n[ERROR] Input image file not found: {args.image}")
+    print("\n[1] INPUT IMAGE")
+    print(f"  Path: {args.image}")
+    if not os.path.exists(args.image):
+        print(f"  [ERROR] Image file does not exist: {args.image}")
         sys.exit(1)
 
     # -------------------------------------------------------------
-    # [2] FACE DETECTION & ENCODING
+    # [2] DETECT FACE & EXTRACT EMBEDDING
     # -------------------------------------------------------------
-    print("\n[2] FACE DETECTION")
+    print("\n[2] FACE DETECTION & EMBEDDING")
     try:
         detector = FaceDetector()
         matcher = FaceMatcher(detector=detector)
-        print("  Detecting face and extracting 128-d embedding...")
-        query_embedding, face_res, total_faces = matcher.compute_embedding_for_image(image_path)
-        print("  ✓ Face detected")
-        if total_faces > 1:
-            print(f"    (Note: {total_faces} faces found in input; selected primary face by area)")
-        print(f"    Confidence: {face_res.confidence * 100:.1f}%")
-        print(f"    Bounding Box: {face_res.bbox}")
-        print("  ✓ Face encoding generated (128-d SFace feature vector)")
+        query_embedding, face_res, total_faces = matcher.compute_embedding_for_image(args.image)
+        print(f"  Faces detected in query image: {total_faces}")
+        print(f"  Primary face confidence: {face_res.confidence * 100:.1f}%")
+        print(f"  Primary face bounding box: {face_res.bbox}")
+        print(f"  SFace embedding shape: {query_embedding.shape} (128-dimensional deep vector)")
     except NoFaceDetectedError:
-        print("\n[ERROR] No face detected in the input image.")
-        print("Please provide an image with a clearly visible human face.")
-        sys.exit(1)
-    except InvalidImageError as e:
-        print(f"\n[ERROR] Failed to load image: {e}")
+        print("  [ERROR] No face detected in the input image. Verification pipeline halted.")
         sys.exit(1)
     except Exception as e:
-        print(f"\n[ERROR] Unexpected error during face processing: {e}")
+        print(f"  [ERROR] Face detection/embedding error: {e}")
         sys.exit(1)
 
     # -------------------------------------------------------------
-    # [3] WEB / SOCIAL MEDIA SEARCH
+    # [3] WEB REVERSE-IMAGE SEARCH ACROSS PLATFORMS
     # -------------------------------------------------------------
     print("\n[3] WEB SEARCH")
+    platform_desc = f"Target Platform: {args.platform.upper()}" if args.platform != "all" else "Searching All Web/Social Platforms"
+    print(f"  {platform_desc}")
+    print(f"  Maximum candidates to discover: {args.max_candidates}")
+
     try:
-        provider = get_search_provider(args.provider)
-        provider_name = provider.__class__.__name__.replace("SearchProvider", "")
-        print(f"  Provider: {provider_name}")
-        print(f"  Social Platform Target: {args.platform.upper()}")
-        print("  ✓ Reverse image search started")
-        candidates = provider.search(image_path, max_results=args.max_candidates, platform=args.platform)
-        print(f"  ✓ {len(candidates)} candidate results found dynamically across {args.platform.upper()}")
+        search_provider = get_search_provider(args.provider)
+        provider_name = search_provider.__class__.__name__
+        print(f"  Search Provider: {provider_name}")
+        candidates = search_provider.search(args.image, max_results=args.max_candidates, platform=args.platform, timeout=15)
+        print(f"  Candidates discovered from web: {len(candidates)}")
     except SearchError as e:
-        print(f"\n[ERROR] Search operation failed: {e}")
+        print(f"  [ERROR] Search operation failed: {e}")
         sys.exit(1)
     except Exception as e:
-        print(f"\n[ERROR] Unexpected error during web search: {e}")
+        print(f"  [ERROR] Unexpected error during reverse image search: {e}")
         sys.exit(1)
 
     if not candidates:
-        print("\n[INFO] No candidate results returned by search provider.")
-        print("Try adjusting the input image or using a different search provider.")
+        print("  [INFO] No candidate results returned by search provider.")
         sys.exit(0)
 
     # -------------------------------------------------------------
-    # [4] CANDIDATE DOWNLOADING & FACE SIMILARITY COMPARISON
+    # [4] CONTENT ACQUISITION & MULTI-FACE SIMILARITY MATCHING
     # -------------------------------------------------------------
-    print("\n[4] FACE MATCHING")
+    print("\n[4] CANDIDATE EVALUATION & BIOMETRIC SIMILARITY")
+    print("  Downloading and evaluating candidate images across all detected faces...")
+
     downloader = ImageDownloader()
     evaluated_candidates = []
 
     for idx, cand in enumerate(candidates, start=1):
-        print(f"  Fetching candidate {idx}/{len(candidates)}: {cand.title[:45]}...", end="", flush=True)
+        print(f"  [{idx}/{len(candidates)}] {cand.title[:45]}...", end="", flush=True)
         img_bytes = None
-        # Try direct image_url first, fallback to thumbnail_url
         for target_url in [cand.image_url, cand.thumbnail_url]:
             if not target_url:
                 continue
@@ -197,32 +201,48 @@ def run_pipeline():
         print("\n[ERROR] Unable to download accessible image data for any discovered candidate.")
         sys.exit(1)
 
-    # Rank candidates using face matcher
-    ranked = matcher.rank_candidates(query_embedding, evaluated_candidates, threshold=args.threshold)
-
-    print("\n  Similarity Scores:")
-    best_candidate = None
-    best_similarity = -1.0
+    # Rank candidates using improved face matcher (evaluates ALL faces in each image)
+    ranked = matcher.rank_candidates(
+        query_embedding,
+        evaluated_candidates,
+        threshold=args.threshold,
+        ambiguity_delta=args.ambiguity_delta
+    )
 
     threshold_pct = args.threshold * 100.0 if args.threshold <= 1.0 else args.threshold
+    best_candidate = ranked[0] if ranked else None
+    best_similarity = best_candidate.get("similarity_percentage", 0.0) if best_candidate else 0.0
 
+    print(f"\n  Similarity Scores (Ranked Descending, Threshold: {threshold_pct:.1f}%):")
     for idx, item in enumerate(ranked, start=1):
         pct = item.get("similarity_percentage", 0.0)
         marker = ""
+        faces_count = item.get("faces_detected_count", 1)
+        multi_info = f" ({faces_count} faces evaluated)" if faces_count > 1 else ""
         if idx == 1 and pct >= threshold_pct:
             marker = " <-- BEST MATCH"
-            best_candidate = item
-            best_similarity = pct
-        elif idx == 1:
-            best_candidate = item
-            best_similarity = pct
+        print(f"  Candidate {idx}: {pct:.1f}% ({item.get('title')}){multi_info}{marker}")
 
-        print(f"  Candidate {idx}: {pct:.1f}%{marker}")
+    # Top 5 Debugging Summary
+    print("\n  Top 5 Evaluated Candidates:")
+    for rank_pos, cand in enumerate(ranked[:5], start=1):
+        faces_cnt = cand.get('faces_detected_count', 1)
+        print(f"    #{rank_pos} [{cand.get('similarity_percentage', 0.0):.1f}%] {cand.get('title')} (Source: {cand.get('source_url', 'N/A')}, Faces: {faces_cnt})")
 
+    # Ambiguity Check
+    is_ambiguous = getattr(ranked, "is_ambiguous", False)
+    if is_ambiguous:
+        amb = getattr(ranked, "ambiguity_details", {})
+        print("\n  ⚠️ [AMBIGUOUS MATCH DETECTED]")
+        print(f"  Top two candidates have very close similarity scores (within {amb.get('ambiguity_threshold', args.ambiguity_delta):.1f}%):")
+        print(f"  1. {amb.get('top1_title')}: {amb.get('top1_score'):.1f}%")
+        print(f"  2. {amb.get('top2_title')}: {amb.get('top2_score'):.1f}% (difference: {amb.get('delta', 0.0):.1f}%)")
+
+    # Threshold Check
     if not best_candidate or best_similarity < threshold_pct:
-        print(f"\n[INFO] Highest similarity ({best_similarity:.1f}%) is below configured threshold ({threshold_pct:.1f}%).")
-        print("No match met the similarity criteria.")
-        print("Note: The system describes candidates by face similarity and does not claim absolute identity.")
+        print(f"\n[RESULT] No high-confidence match found.")
+        print(f"Highest similarity ({best_similarity:.1f}%) is below configured threshold ({threshold_pct:.1f}%).")
+        print("Note: The search system discovered candidates, but biometric face similarity decided no candidate meets the threshold.")
         sys.exit(0)
 
     print("\n  ✓ BEST MATCH FOUND")
@@ -327,5 +347,7 @@ def run_pipeline():
     print(f"  python verify.py --image {matched_image_path} --record {record_id_str}\n")
 
 
+run_pipeline = main
+
 if __name__ == "__main__":
-    run_pipeline()
+    main()

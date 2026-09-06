@@ -20,25 +20,27 @@ class ImageDownloader:
     """
     Handles downloading and local persistence of web images.
     """
-    def __init__(self, timeout: int = 15, max_size_bytes: int = 20 * 1024 * 1024):
+    def __init__(self, timeout: int = 7, max_size_bytes: int = 20 * 1024 * 1024):
         self.timeout = timeout
         self.max_size_bytes = max_size_bytes
         self.headers = {
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
-                "Chrome/122.0.0.0 Safari/537.36"
+                "Chrome/124.0.0.0 Safari/537.36"
             ),
             "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8"
         }
 
-    def download_image_bytes(self, url: str) -> bytes:
+    def download_image_bytes(self, url: str, timeout: Optional[int] = None) -> bytes:
         """
         Downloads image bytes from a URL with safety checks.
         Supports HTTP(S) URLs, data URIs, and local file paths.
         """
         if not url:
             raise DownloadError("Empty URL provided.")
+
+        req_timeout = timeout or self.timeout
 
         # Local file path support
         if os.path.isfile(url):
@@ -72,7 +74,7 @@ class ImageDownloader:
             raise DownloadError(f"Invalid URL schema: {url}")
 
         try:
-            resp = requests.get(url, headers=self.headers, timeout=self.timeout, stream=True)
+            resp = requests.get(url, headers=self.headers, timeout=req_timeout, stream=True)
         except requests.RequestException as e:
             raise DownloadError(f"Connection error downloading {url}: {e}")
 
@@ -101,6 +103,54 @@ class ImageDownloader:
             raise DownloadError(f"Downloaded content is not a recognized image format (Content-Type: {content_type})")
 
         return content
+
+    def download_candidates_parallel(self, candidate_list: list, max_workers: int = 10, timeout: int = 6) -> list:
+        """
+        Concurrently downloads image bytes for candidate items with fast failover.
+        """
+        import concurrent.futures
+
+        def _fetch_candidate(cand):
+            target_url = getattr(cand, "image_url", None) or getattr(cand, "thumbnail_url", None)
+            if not target_url and isinstance(cand, dict):
+                target_url = cand.get("image_url") or cand.get("thumbnail_url")
+            
+            if not target_url:
+                return None
+
+            # Try primary image URL then thumbnail if primary fails
+            for u in [target_url, getattr(cand, "thumbnail_url", None) if hasattr(cand, "thumbnail_url") else (cand.get("thumbnail_url") if isinstance(cand, dict) else None)]:
+                if not u:
+                    continue
+                try:
+                    data = self.download_image_bytes(u, timeout=timeout)
+                    if data and len(data) > 200:
+                        return {
+                            "title": getattr(cand, "title", None) if hasattr(cand, "title") else cand.get("title", "Discovered Candidate"),
+                            "source_url": getattr(cand, "source_url", None) if hasattr(cand, "source_url") else cand.get("source_url", u),
+                            "image_url": target_url,
+                            "thumbnail_url": u,
+                            "image_bytes": data,
+                            "image_data": data,
+                            "platform": getattr(cand, "platform", None) if hasattr(cand, "platform") else cand.get("platform", "web"),
+                            "engine": getattr(cand, "engine", None) if hasattr(cand, "engine") else cand.get("engine", "web_discovery")
+                        }
+                except Exception:
+                    continue
+            return None
+
+        evaluated = []
+        with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_cand = {executor.submit(_fetch_candidate, c): c for c in candidate_list}
+            for future in concurrent.futures.as_completed(future_to_cand):
+                try:
+                    res = future.result()
+                    if res is not None:
+                        evaluated.append(res)
+                except Exception:
+                    pass
+
+        return evaluated
 
     def save_image(self, data: bytes, destination_path: str) -> str:
         """

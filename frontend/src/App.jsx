@@ -1,84 +1,23 @@
-import React, { useState } from 'react';
-import TopNavbar from './components/TopNavbar';
-import ProjectHeader from './components/ProjectHeader';
-import ExecutionControl from './components/ExecutionControl';
-import NavigationTabs from './components/NavigationTabs';
-import BiometricViewport from './components/PipelineExecutionTab/BiometricViewport';
-import PipelineStepper from './components/PipelineExecutionTab/PipelineStepper';
-import IntegrityVerificationTab from './components/IntegrityVerificationTab';
-import TamperAuditLabTab from './components/TamperAuditLabTab';
-import OnChainLedgerTab from './components/OnChainLedgerTab';
-import ArchitectureSpecsTab from './components/ArchitectureSpecsTab';
-import BottomStatusDock from './components/BottomStatusDock';
-import { ASSETS, DATASETS } from './assets/datasets';
-
-const INITIAL_STEPS = [
-  {
-    id: 1,
-    title: 'Biometric Facial Alignment',
-    meta: 'YuNet DNN • 38ms',
-    desc: 'Extracts 5 fiducials (eyes, nose, mouth corners)',
-    state: 'pending',
-    badge: 'Pending'
-  },
-  {
-    id: 2,
-    title: 'Reverse Search Candidate Retrieval',
-    meta: 'Lens API • 612ms',
-    desc: 'Queries Google Lens candidate index for matching media',
-    state: 'pending',
-    badge: 'Pending'
-  },
-  {
-    id: 3,
-    title: 'Cosine Similarity Ranking',
-    meta: 'SFace 512-d • 19ms',
-    desc: 'Compares unit vectors against the strict 85% match gate',
-    state: 'pending',
-    badge: 'Pending'
-  },
-  {
-    id: 4,
-    title: 'Cryptographic Checksum',
-    meta: 'RFC 8785 • 4ms',
-    desc: 'Computes canonical deterministic SHA-256 payload digest',
-    state: 'pending',
-    badge: 'Pending'
-  },
-  {
-    id: 5,
-    title: 'On-Chain Notarization',
-    meta: 'SPL Memo • 285ms',
-    desc: 'Signs and broadcasts immutable decentralized ledger proof',
-    state: 'pending',
-    badge: 'Pending'
-  }
-];
+import React, { useState, useEffect } from 'react';
+import CameraViewport from './components/CameraViewport';
+import ProcessStageStepper from './components/ProcessStageStepper';
+import MatchResultsCard from './components/MatchResultsCard';
+import VerificationView from './components/VerificationView';
+import HistoryView from './components/HistoryView';
 
 export default function App() {
-  // Global State
-  const [activeNetwork, setActiveNetwork] = useState('ganache');
-  const [execMode, setExecMode] = useState('live');
-  const [activeScenario, setActiveScenario] = useState('verified');
-  const [currentKey, setCurrentKey] = useState('person');
-  const [currentHash, setCurrentHash] = useState(
-    'cdbbb4ca45c00dc16ceb08caeb886d0fb24e059ec11880af497ca620d15359a9'
-  );
-  const [activeTab, setActiveTab] = useState('tab-pipeline');
-  const [statusInfo, setStatusInfo] = useState(null);
+  // Navigation & View State
+  const [activeTab, setActiveTab] = useState('workstation'); // 'workstation', 'verification', 'history'
+  const [mode, setMode] = useState('webcam'); // 'webcam', 'upload'
+  const [customImage, setCustomImage] = useState(null);
 
   // Pipeline Execution State
-  const [threshold, setThreshold] = useState(0.55);
-  const [searchProvider, setSearchProvider] = useState('direct');
-  const [platform, setPlatform] = useState('all');
-  const [isRunning, setIsRunning] = useState(false);
-  const [steps, setSteps] = useState(INITIAL_STEPS);
-  const [telemetryStatus, setTelemetryStatus] = useState('Ready');
-  const [verdict, setVerdict] = useState(null);
-  const [candidates, setCandidates] = useState([]);
-  const [receipt, setReceipt] = useState(null);
+  const [pipelineState, setPipelineState] = useState('idle'); // 'idle', 'searching', 'verified', 'failed'
+  const [currentStage, setCurrentStage] = useState(1);
+  const [pipelineResults, setPipelineResults] = useState(null);
+  const [statusInfo, setStatusInfo] = useState(null);
 
-  // Fetch status on mount
+  // Fetch status on mount & polling
   const fetchStatus = async () => {
     try {
       const res = await fetch('/api/status');
@@ -89,252 +28,219 @@ export default function App() {
     }
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     fetchStatus();
-    const timer = setInterval(fetchStatus, 5000);
-    return () => clearInterval(timer);
+    const interval = setInterval(fetchStatus, 6000);
+    return () => clearInterval(interval);
   }, []);
 
-  // Scenario Selection
-  const handleSelectScenario = (scenId) => {
-    setActiveScenario(scenId);
-    if (scenId === 'verified') {
-      handleSelectDataset('person');
-    } else if (scenId === 'tampered') {
-      handleSelectDataset('tamper');
-    } else if (scenId === 'lowmatch') {
-      handleSelectDataset('lookalike');
-    } else if (scenId === 'noface') {
-      handleSelectDataset('noface');
-    }
+  const handleResetState = () => {
+    setPipelineState('idle');
+    setCurrentStage(1);
+    setPipelineResults(null);
   };
 
-  // Dataset Selection
-  const handleSelectDataset = (key) => {
-    setCurrentKey(key);
-    const found = DATASETS.find(d => d.id === key);
-    if (found && found.hash !== 'none') {
-      setCurrentHash(found.hash);
-    }
-  };
+  // Run Pipeline Execution for Captured Webcam Snapshot or File Upload
+  const handleCaptureAndRun = async (capturedB64Image, options = {}) => {
+    setPipelineState('searching');
+    setCurrentStage(1);
+    setPipelineResults(null);
 
-  // Custom Upload
-  const handleCustomUpload = (imgSrc, hash, fileName) => {
-    ASSETS.custom = imgSrc;
-    setCurrentKey('custom');
-    setCurrentHash(hash);
-  };
-
-  // Run Real Pipeline Flow
-  const runPipeline = async () => {
-    setIsRunning(true);
-    setTelemetryStatus('Running Pipeline...');
-    setVerdict(null);
-    setCandidates([]);
-    setReceipt(null);
-
-    // Reset Steps
-    setSteps(INITIAL_STEPS.map(s => ({ ...s, state: 'pending', badge: 'Pending' })));
-
-    const updateStep = (id, state, badge) => {
-      setSteps(prev =>
-        prev.map(s => (s.id === id ? { ...s, state, badge } : s))
-      );
-    };
-
-    updateStep(1, 'active', 'Detecting Face (YuNet DNN)...');
+    const imagePayload = capturedB64Image || customImage;
+    const targetName = options.target_name || '';
+    const platform = options.platform || 'all';
 
     try {
-      const response = await fetch('/api/pipeline/run', {
+      // Stage 1: Face Detection
+      setCurrentStage(1);
+      await new Promise(r => setTimeout(r, 150));
+
+      // Stage 2: Web Search
+      setCurrentStage(2);
+      const res = await fetch('/api/pipeline/run', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          dataset_id: currentKey,
-          threshold: threshold,
-          provider: searchProvider,
+          dataset_id: 'custom',
+          threshold: 0.55,
+          provider: 'serpapi',
           platform: platform,
-          custom_image: currentKey === 'custom' ? ASSETS.custom : undefined
+          target_name: targetName,
+          custom_image: imagePayload
         })
       });
 
-      const data = await response.json();
+      const data = await res.json();
 
       if (!data.success) {
-        if (data.verdict?.type === 'noface' || data.stage === 1) {
-          updateStep(1, 'failed', '0 Faces Detected');
-          updateStep(2, 'failed', 'Skipped');
-          updateStep(3, 'failed', 'Skipped');
-          updateStep(4, 'failed', 'Skipped');
-          updateStep(5, 'failed', 'Skipped');
-          setTelemetryStatus('Halted');
-          setVerdict(data.verdict || {
+        setPipelineState('failed');
+        setPipelineResults({
+          verdict: data.verdict || {
             type: 'noface',
-            title: 'Stage 1 Halted: No Face Detected',
-            message: data.error || 'YuNet detector found zero faces in the input frame.'
-          });
-        } else {
-          setTelemetryStatus('Failed');
-          setVerdict({
-            type: 'tampered',
-            title: `Pipeline Failed at Stage ${data.stage || 1}`,
-            message: data.error || 'An error occurred during pipeline execution.'
-          });
-        }
-        setIsRunning(false);
-        return;
-      }
-
-      // Stage 1 success
-      updateStep(1, 'completed', `Face Detected (${data.face_confidence}% confidence)`);
-
-      // Stage 2
-      updateStep(2, 'active', 'Querying Reverse Search Index...');
-      await new Promise(r => setTimeout(r, 300));
-      updateStep(2, 'completed', `${data.candidates?.length || 0} Candidates Discovered`);
-
-      // Stage 3
-      updateStep(3, 'active', 'Evaluating Cosine Similarity (SFace)...');
-      await new Promise(r => setTimeout(r, 300));
-      const bestScore = data.best_match?.similarity_score || 0;
-      const gatePct = (threshold <= 1 ? threshold * 100 : threshold);
-      const isLow = bestScore < gatePct;
-      updateStep(3, 'completed', `${bestScore.toFixed(1)}% (${isLow ? 'Below Gate' : 'Verified'})`);
-      setCandidates(data.candidates || []);
-
-      if (isLow) {
-        updateStep(4, 'failed', 'Skipped');
-        updateStep(5, 'failed', 'Skipped (Below Gate)');
-        setTelemetryStatus('Rejected');
-        setVerdict(data.verdict || {
-          type: 'lowmatch',
-          title: 'Low Similarity: Verification Rejected',
-          message: `Cosine similarity of ${bestScore.toFixed(1)}% is below the required ${gatePct.toFixed(1)}% threshold gate.`
+            title: 'No Face Detected',
+            message: data.error || 'YuNet detector found zero human faces in the provided frame. Please ensure your face is clearly visible.'
+          }
         });
-        setIsRunning(false);
         return;
       }
 
-      // Stage 4
-      updateStep(4, 'active', 'Computing SHA-256 Digest...');
+      // Stage 3: Match Evaluation
+      setCurrentStage(3);
+      await new Promise(r => setTimeout(r, 200));
+
+      // Stage 4: SHA-256 Fingerprint
+      setCurrentStage(4);
+      await new Promise(r => setTimeout(r, 150));
+
+      // Stage 5: Blockchain Notarization
+      setCurrentStage(5);
       await new Promise(r => setTimeout(r, 250));
-      updateStep(4, 'completed', `SHA-256: ${data.sha256.substring(0, 16)}...`);
-      setCurrentHash(data.sha256);
 
-      // Stage 5
-      updateStep(5, 'active', 'Notarizing on Local Ganache...');
-      await new Promise(r => setTimeout(r, 350));
-      const blockNum = data.blockchain?.block_number || 1;
-      const recId = data.blockchain?.record_id || 1;
-      updateStep(5, 'completed', `Confirmed on Ganache Block #${blockNum}`);
-
-      setReceipt({
-        network: 'Local Ganache (Chain ID 1337)',
-        txSig: data.blockchain?.transaction_hash || 'N/A',
-        sha256: data.sha256,
-        score: `${bestScore.toFixed(1)}% Match`,
-        slotState: `Block #${blockNum} (Record #${recId})`,
-        latency: `Gas Used: ${data.blockchain?.gas_used?.toLocaleString() || '184,198'}`,
-        explorerUrl: 'http://127.0.0.1:7545'
-      });
-
-      setTelemetryStatus('Notarized & Verified');
-      setVerdict(data.verdict || {
-        type: 'verified',
-        title: 'On-Chain Verification Passed',
-        message: '100% Cryptographic Match! The portrait has been authenticated, SHA-256 validated, and registered on Ganache smart contract.'
-      });
-
+      // Pipeline Complete
+      setCurrentStage(6);
+      setPipelineState('verified');
+      setPipelineResults(data);
       fetchStatus();
 
     } catch (err) {
-      setTelemetryStatus('Error');
-      setVerdict({
-        type: 'tampered',
-        title: 'Pipeline Connection Error',
-        message: `Could not connect to Python backend server: ${err.message}`
+      setPipelineState('failed');
+      setPipelineResults({
+        verdict: {
+          type: 'failed',
+          title: 'Pipeline Connection Error',
+          message: `Could not connect to backend server: ${err.message}`
+        }
       });
-    } finally {
-      setIsRunning(false);
     }
   };
 
-  const handleQuickVerify = (id) => {
-    setActiveTab('tab-verify');
-  };
-
   return (
-    <div className="dashboard-layout">
-      {/* 1. TOP NAVBAR */}
-      <TopNavbar statusInfo={statusInfo} />
-
-      {/* 2. PROJECT HEADER */}
-      <ProjectHeader />
-
-      {/* 3. EXECUTION CONTROL */}
-      <ExecutionControl
-        execMode={execMode}
-        setExecMode={setExecMode}
-        activeScenario={activeScenario}
-        onSelectScenario={handleSelectScenario}
-        currentKey={currentKey}
-        onSelectDataset={handleSelectDataset}
-      />
-
-      {/* 4. NAVIGATION TABS */}
-      <NavigationTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-      {/* TAB 1: PIPELINE EXECUTION */}
-      <div className={`tab-view ${activeTab === 'tab-pipeline' ? 'active' : ''}`}>
-        <div className="dashboard-grid">
-          <BiometricViewport
-            currentKey={currentKey}
-            onCustomUpload={handleCustomUpload}
-            threshold={threshold}
-            setThreshold={setThreshold}
-            searchProvider={searchProvider}
-            setSearchProvider={setSearchProvider}
-            platform={platform}
-            setPlatform={setPlatform}
-            onRunPipeline={runPipeline}
-            isRunning={isRunning}
-            onSelectDataset={handleSelectDataset}
-          />
-          <PipelineStepper
-            steps={steps}
-            telemetryStatus={telemetryStatus}
-            verdict={verdict}
-            candidates={candidates}
-            receipt={receipt}
-            activeNetwork={activeNetwork}
-          />
+    <div className="workstation-app-container">
+      {/* 1. TOP FUTURISTIC HEADER */}
+      <header className="workstation-navbar">
+        <div className="nav-brand">
+          <div className="brand-icon">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00f2fe" strokeWidth="2.2">
+              <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+            </svg>
+          </div>
+          <div className="brand-text">
+            <span className="brand-name">CYBERSIGHT</span>
+            <span className="brand-tag">FACE WORKSTATION</span>
+          </div>
         </div>
-      </div>
 
-      {/* TAB 2: INTEGRITY VERIFICATION */}
-      <div className={`tab-view ${activeTab === 'tab-verify' ? 'active' : ''}`}>
-        <IntegrityVerificationTab />
-      </div>
+        {/* Minimal Navigation View Switcher */}
+        <nav className="nav-view-switcher">
+          <button
+            className={`nav-tab-btn ${activeTab === 'workstation' ? 'active' : ''}`}
+            onClick={() => setActiveTab('workstation')}
+          >
+            FACE VERIFY
+          </button>
+          <button
+            className={`nav-tab-btn ${activeTab === 'verification' ? 'active' : ''}`}
+            onClick={() => setActiveTab('verification')}
+          >
+            INTEGRITY CHECK
+          </button>
+          <button
+            className={`nav-tab-btn ${activeTab === 'history' ? 'active' : ''}`}
+            onClick={() => setActiveTab('history')}
+          >
+            LEDGER HISTORY
+          </button>
+        </nav>
 
-      {/* TAB 3: TAMPER AUDIT LAB */}
-      <div className={`tab-view ${activeTab === 'tab-tamper' ? 'active' : ''}`}>
-        <TamperAuditLabTab />
-      </div>
+        {/* Right Blockchain System Telemetry Cluster */}
+        <div className="nav-sys-telemetry">
+          <div className="telemetry-chip">
+            <span className="sys-node-dot" />
+            <span className="chip-label">NETWORK:</span>
+            <span className="chip-val">Ganache (1337)</span>
+          </div>
+          <div className="telemetry-chip">
+            <span className="chip-label">BLOCK:</span>
+            <span className="chip-val accent">#{statusInfo?.latest_block || 1}</span>
+          </div>
+          <div className="telemetry-chip hide-mobile">
+            <span className="chip-label">CONTRACT:</span>
+            <span className="chip-val code">{statusInfo?.contract_address ? `${statusInfo.contract_address.slice(0, 6)}...${statusInfo.contract_address.slice(-4)}` : '0xc8C3...E0F0'}</span>
+          </div>
+          <div className="telemetry-chip hide-mobile">
+            <span className="chip-label">ETH:</span>
+            <span className="chip-val highlight">{statusInfo?.wallet_balance !== undefined ? `${statusInfo.wallet_balance} ETH` : '999.99 ETH'}</span>
+          </div>
+        </div>
+      </header>
 
-      {/* TAB 4: ON-CHAIN LEDGER */}
-      <div className={`tab-view ${activeTab === 'tab-ledger' ? 'active' : ''}`}>
-        <OnChainLedgerTab onQuickVerify={handleQuickVerify} />
-      </div>
+      {/* 2. MAIN CONTENT BODY */}
+      <main className="workstation-body">
+        {activeTab === 'workstation' && (
+          <div className="workstation-hero-layout">
+            {/* Left/Main Hero Camera Viewport */}
+            <div className="hero-viewport-column">
+              <CameraViewport
+                mode={mode}
+                setMode={setMode}
+                customImage={customImage}
+                setCustomImage={setCustomImage}
+                onCapture={handleCaptureAndRun}
+                pipelineState={pipelineState}
+                onResetState={handleResetState}
+              />
+            </div>
 
-      {/* TAB 5: ARCHITECTURE & SPECS */}
-      <div className={`tab-view ${activeTab === 'tab-specs' ? 'active' : ''}`}>
-        <ArchitectureSpecsTab />
-      </div>
+            {/* Right Pipeline Telemetry & Results Column */}
+            <div className="hero-telemetry-column">
+              {/* Process Stepper */}
+              <ProcessStageStepper
+                currentStage={currentStage}
+                pipelineState={pipelineState}
+              />
 
-      {/* 5. BOTTOM STATUS DOCK */}
-      <BottomStatusDock
-        statusInfo={statusInfo}
-        onOpenSpecs={() => setActiveTab('tab-specs')}
-      />
+              {/* Match Results or Idle Instruction Card */}
+              {pipelineResults ? (
+                <MatchResultsCard
+                  resultsData={pipelineResults}
+                  statusInfo={statusInfo}
+                  onReset={handleResetState}
+                  onQuickVerify={(recId) => setActiveTab('verification')}
+                />
+              ) : (
+                <div className="idle-instruction-card">
+                  <div className="idle-icon">
+                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#475569" strokeWidth="1.5">
+                      <circle cx="12" cy="12" r="10" />
+                      <circle cx="12" cy="12" r="3" />
+                      <line x1="12" y1="2" x2="12" y2="4" />
+                      <line x1="12" y1="20" x2="12" y2="22" />
+                      <line x1="2" y1="12" x2="4" y2="12" />
+                      <line x1="20" y1="12" x2="22" y2="12" />
+                    </svg>
+                  </div>
+                  <h3>Ready for Face Verification</h3>
+                  <p>
+                    Position your face in the camera viewport on the left or upload an image file. The system tracks your face using computer vision. Click <strong>CAPTURE FACE & VERIFY</strong> to search the web and notarize on the blockchain.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'verification' && (
+          <VerificationView statusInfo={statusInfo} />
+        )}
+
+        {activeTab === 'history' && (
+          <HistoryView
+            onSelectRecordForVerify={(id) => {
+              setActiveTab('verification');
+            }}
+          />
+        )}
+      </main>
     </div>
   );
 }

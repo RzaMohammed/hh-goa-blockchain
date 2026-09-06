@@ -122,11 +122,11 @@ export default function PipelineStepper({
                   onError={(e) => { e.currentTarget.src = '/input/person.jpg'; }}
                 />
                 <div className="candidate-info-box">
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '2px', flexWrap: 'wrap' }}>
-                    <span className="candidate-label">{cand.label}</span>
+                  <div className="candidate-header-row">
+                    <span className="candidate-label" title={cand.label}>{cand.label}</span>
                     {cand.platform && (
-                      <span className={`platform-pill ${cand.platform}`}>
-                        {cand.platform}
+                      <span className={`platform-pill ${cand.platform}`} title={cand.domain || cand.source_name}>
+                        {cand.source_name || cand.platform}
                       </span>
                     )}
                   </div>
@@ -135,7 +135,7 @@ export default function PipelineStepper({
                     target="_blank"
                     rel="noreferrer"
                     className="candidate-link"
-                    style={{ textDecoration: 'none', color: 'var(--text-secondary)' }}
+                    title={cand.link}
                   >
                     {cand.link} ↗
                   </a>
