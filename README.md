@@ -437,6 +437,38 @@ All 11 unit tests execute in under 3 seconds using local EVM simulation.
 
 ---
 
+## Docker Quickstart & Containerization
+
+You can launch the entire biometric pipeline alongside a containerized Ganache blockchain node using Docker Compose:
+
+```bash
+# Build and run services in the background
+docker-compose up -d
+
+# Check running containers
+docker-compose ps
+
+# View real-time logs
+docker-compose logs -f api
+```
+
+The services exposed:
+- **Ganache RPC Node:** `http://127.0.0.1:7545` (Network ID: 5777)
+- **Biometric API / Frontend Server:** `http://127.0.0.1:5000`
+
+---
+
+## Troubleshooting Guide
+
+| Issue | Cause | Solution |
+|---|---|---|
+| `Cannot connect to Ganache RPC` | Ganache is offline or using a different port | Ensure Ganache is running on port 7545 (GUI) or 8545 (CLI). Check `LOCAL_RPC_URL` in `.env`. |
+| `ContractLogicError: execution reverted` | Account lacks test ETH or private key mismatch | Select an account with sufficient balance and update `LOCAL_PRIVATE_KEY` in `.env`. |
+| `No face detected in image` | Input image resolution is too low or face is obscured | Ensure clear front-facing lighting with minimal tilt or occlusion. |
+| `OpenCV model download error` | Network timeout fetching YuNet/SFace ONNX models | Models auto-download to `models/`. Check internet connectivity or place weights manually in `models/`. |
+
+---
+
 ## Limitations & Considerations
 
 > [!WARNING]
