@@ -66,3 +66,28 @@ def verify_hashes(hash_a: str, hash_b: str) -> bool:
     Case-insensitive comparison of two hex hashes.
     """
     return bytes32_to_hex(hash_a) == bytes32_to_hex(hash_b)
+
+
+def is_valid_sha256(hex_string: str) -> bool:
+    """
+    Validates if a string represents a valid 64-character SHA-256 hexadecimal digest.
+    """
+    if not isinstance(hex_string, str):
+        return False
+    clean = hex_string.strip()
+    if clean.startswith("0x") or clean.startswith("0X"):
+        clean = clean[2:]
+    if len(clean) != 64:
+        return False
+    return all(c in "0123456789abcdefABCDEF" for c in clean)
+
+
+def verify_file_hash(file_path: str, expected_hash: str) -> bool:
+    """
+    Verifies if the SHA-256 hash of a file matches an expected hash digest.
+    Returns True if hashes match, False otherwise.
+    Raises FileNotFoundError if file_path does not exist.
+    """
+    actual_hash = hash_file(file_path)
+    return verify_hashes(actual_hash, expected_hash)
+
