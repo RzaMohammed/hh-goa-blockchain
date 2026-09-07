@@ -31,5 +31,29 @@ yarn-error.log*
 .vscode/
 .idea/
 *.swp
+*.swo
+*.sublime-workspace
 .DS_Store
 Thumbs.db
+Desktop.ini
+
+# Testing & Coverage
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.tox/
+.nox/
+
+# Logs & Runtime
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Builds & Distributions
+build/
+dist/
+*.egg-info/
+

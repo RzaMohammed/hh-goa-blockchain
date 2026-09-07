@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  ganache:
+    image: trufflesuite/ganache:latest
+    container_name: hh-ganache
+    ports:
+      - "7545:8545"
+    command:
+      - --wallet.deterministic
+      - --server.host=0.0.0.0
+      - --server.port=8545
+      - --chain.networkId=5777
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hh-api
+    depends_on:
+      - ganache
+    environment:
+      - LOCAL_RPC_URL=http://ganache:8545
+      - FLASK_HOST=0.0.0.0
+      - FLASK_PORT=5000
+      - OUTPUT_DIR=/app/output
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./output:/app/output
+      - ./input:/app/input
