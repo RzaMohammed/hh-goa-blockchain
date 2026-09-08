@@ -21,17 +21,14 @@ CONTRACT_DATA_PATH = os.path.join(os.path.dirname(__file__), "contract_data.json
 
 class BlockchainError(Exception):
     """Base exception for blockchain-related errors."""
-    pass
 
 
 class InsufficientFundsError(BlockchainError):
     """Raised when the wallet has insufficient funds for transaction gas."""
-    pass
 
 
 class RecordNotFoundError(BlockchainError):
     """Raised when a requested verification record does not exist."""
-    pass
 
 
 class BlockchainClient:
