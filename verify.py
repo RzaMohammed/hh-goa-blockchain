@@ -3,15 +3,15 @@ Verification CLI tool for Face Identification & Blockchain Verification.
 Re-hashes the local image file, queries the on-chain fingerprint from the
 Ethereum Sepolia smart contract, and evaluates tamper evidence.
 """
+import argparse
+import json
 import os
 import sys
-import json
-import argparse
-from datetime import datetime
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 
-from utils.hashing import hash_file, verify_hashes
 from blockchain.blockchain import BlockchainClient, BlockchainError, RecordNotFoundError
+from utils.hashing import hash_file, verify_hashes
 
 load_dotenv()
 
@@ -139,7 +139,7 @@ def verify():
         sys.exit(1)
 
     blockchain_hash = record["data_hash"]
-    ts_dt = datetime.utcfromtimestamp(record["timestamp"]).strftime('%Y-%m-%d %H:%M:%S UTC')
+    ts_dt = datetime.fromtimestamp(record["timestamp"], tz=timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')
 
     print(f"Connected to Contract: {client.contract_address}")
     print(f"On-chain Record Timestamp: {ts_dt}")
