@@ -19,17 +19,14 @@ DEFAULT_YUNET_PATH = os.path.join(DEFAULT_MODEL_DIR, "face_detection_yunet_2023m
 
 class FaceError(Exception):
     """Base exception for face processing errors."""
-    pass
 
 
 class InvalidImageError(FaceError):
     """Raised when an image cannot be read or is invalid."""
-    pass
 
 
 class NoFaceDetectedError(FaceError):
     """Raised when no face is detected in the input image."""
-    pass
 
 
 @dataclass
