@@ -4,7 +4,6 @@ Generates and verifies cryptographic fingerprints of raw file bytes for blockcha
 """
 import hashlib
 import os
-from typing import Union
 
 
 def hash_bytes(data: bytes) -> str:
@@ -46,7 +45,7 @@ def hex_to_bytes32(hex_string: str) -> bytes:
     return bytes.fromhex(clean_hex)
 
 
-def bytes32_to_hex(b32: Union[bytes, str]) -> str:
+def bytes32_to_hex(b32: bytes | str) -> str:
     """
     Converts a 32-byte binary object or hex string into a standard
     64-character lowercase hexadecimal string.
