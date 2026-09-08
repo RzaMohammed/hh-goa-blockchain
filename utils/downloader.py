@@ -13,7 +13,6 @@ logger = logging.getLogger(__name__)
 
 class DownloadError(Exception):
     """Raised when an image download fails or content is invalid."""
-    pass
 
 
 class ImageDownloader:
