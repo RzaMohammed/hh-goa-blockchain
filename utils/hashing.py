@@ -52,7 +52,7 @@ def bytes32_to_hex(b32: bytes | str) -> str:
     """
     if isinstance(b32, str):
         clean = b32.strip().lower()
-        return clean[2:] if clean.startswith("0x") else clean
+        return clean.removeprefix("0x")
     elif isinstance(b32, (bytes, bytearray)):
         return b32.hex().lower()
     else:
