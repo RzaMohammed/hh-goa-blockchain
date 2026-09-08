@@ -19,7 +19,6 @@ logger = logging.getLogger(__name__)
 
 class SearchError(Exception):
     """Base exception for search operations."""
-    pass
 
 
 @dataclass
