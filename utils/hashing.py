@@ -38,8 +38,7 @@ def hex_to_bytes32(hex_string: str) -> bytes:
     into a 32-byte binary object for Solidity bytes32 representation.
     """
     clean_hex = hex_string.strip()
-    if clean_hex.startswith("0x") or clean_hex.startswith("0X"):
-        clean_hex = clean_hex[2:]
+    clean_hex = clean_hex.removeprefix("0x").removeprefix("0X")
 
     if len(clean_hex) != 64:
         raise ValueError(f"Hex string must be 64 characters long (32 bytes), got {len(clean_hex)}")
