@@ -5,7 +5,7 @@ Fetches candidate images from web URLs and persists winning matches with metadat
 import os
 import json
 import logging
-from typing import Optional, Dict, Any, Tuple
+from typing import Any
 import requests
 
 logger = logging.getLogger(__name__)
@@ -80,7 +80,7 @@ class ImageDownloader:
             f.write(data)
         return destination_path
 
-    def save_metadata(self, metadata: Dict[str, Any], destination_path: str) -> str:
+    def save_metadata(self, metadata: dict[str, Any], destination_path: str) -> str:
         """
         Saves metadata dictionary as a formatted JSON file.
         """
