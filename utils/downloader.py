@@ -35,7 +35,7 @@ class ImageDownloader:
         """
         Downloads image bytes from a URL with safety checks.
         """
-        if not url or not (url.startswith("http://") or url.startswith("https://")):
+        if not url or not (url.startswith(("http://", "https://"))):
             raise DownloadError(f"Invalid URL schema: {url}")
 
         try:
@@ -60,7 +60,7 @@ class ImageDownloader:
         is_jpeg = content.startswith(b"\xff\xd8\xff")
         is_png = content.startswith(b"\x89PNG\r\n\x1a\n")
         is_webp = len(content) > 12 and content.startswith(b"RIFF") and content[8:12] == b"WEBP"
-        is_gif = content.startswith(b"GIF87a") or content.startswith(b"GIF89a")
+        is_gif = content.startswith((b"GIF87a", b"GIF89a"))
         
         # In case server serves with different header or minor format variations
         content_type = resp.headers.get("Content-Type", "")
