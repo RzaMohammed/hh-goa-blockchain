@@ -1,4 +1,9 @@
 # Face Identification & Blockchain Verification
+![Python](https://img.shields.io/badge/Python-3.11+-blue?logo=python&logoColor=white)
+![Solidity](https://img.shields.io/badge/Solidity-^0.8.20-363636?logo=solidity&logoColor=white)
+![Ethereum](https://img.shields.io/badge/Ethereum-Sepolia-3C3C3D?logo=ethereum&logoColor=white)
+![License](https://img.shields.io/badge/License-MIT-green)
+
 
 **HH Goa 2026 Shortlisting Task 3: Complete End-to-End Command-Line Pipeline**
 
