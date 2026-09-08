@@ -10,6 +10,8 @@ __pycache__/
 *$py.class
 *.so
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
 
 # ONNX Models cache (can be redownloaded automatically)
 models/*.onnx
@@ -33,3 +35,8 @@ yarn-error.log*
 *.swp
 .DS_Store
 Thumbs.db
+
+# Coverage reports
+htmlcov/
+.coverage
+coverage.xml
